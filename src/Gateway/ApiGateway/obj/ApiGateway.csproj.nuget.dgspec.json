@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\ParkEase-1\\src\\Gateway\\ApiGateway\\ApiGateway.csproj": {}
+    "D:\\ParkEase\\src\\Gateway\\ApiGateway\\ApiGateway.csproj": {}
   },
   "projects": {
-    "D:\\ParkEase-1\\src\\Gateway\\ApiGateway\\ApiGateway.csproj": {
+    "D:\\ParkEase\\src\\Gateway\\ApiGateway\\ApiGateway.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\ParkEase-1\\src\\Gateway\\ApiGateway\\ApiGateway.csproj",
+        "projectUniqueName": "D:\\ParkEase\\src\\Gateway\\ApiGateway\\ApiGateway.csproj",
         "projectName": "ApiGateway",
-        "projectPath": "D:\\ParkEase-1\\src\\Gateway\\ApiGateway\\ApiGateway.csproj",
+        "projectPath": "D:\\ParkEase\\src\\Gateway\\ApiGateway\\ApiGateway.csproj",
         "packagesPath": "C:\\Users\\khush\\.nuget\\packages\\",
-        "outputPath": "D:\\ParkEase-1\\src\\Gateway\\ApiGateway\\obj\\",
+        "outputPath": "D:\\ParkEase\\src\\Gateway\\ApiGateway\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

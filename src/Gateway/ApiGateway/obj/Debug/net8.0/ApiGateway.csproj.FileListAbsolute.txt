@@ -17,6 +17,9 @@ D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Serilog.Settings.Configurati
 D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Serilog.Sinks.Console.dll
 D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Serilog.Sinks.Debug.dll
 D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Serilog.Sinks.File.dll
+D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\System.IO.Hashing.dll
 D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Yarp.ReverseProxy.dll
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.AssemblyReference.cache
@@ -27,6 +30,7 @@ D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.AssemblyInfo.cs
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.csproj.CoreCompileInputs.cache
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.MvcApplicationPartsAssemblyInfo.cs
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.MvcApplicationPartsAssemblyInfo.cache
+D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.sourcelink.json
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\rjimswa.dswa.cache.json
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -42,6 +46,3 @@ D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\refint\ApiGateway.dll
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.pdb
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ApiGateway.genruntimeconfig.cache
 D:\ParkEase\src\Gateway\ApiGateway\obj\Debug\net8.0\ref\ApiGateway.dll
-D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
-D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
-D:\ParkEase\src\Gateway\ApiGateway\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
