@@ -1,0 +1,11 @@
+D:\ParkEase\src\Services\AuthService\Auth.Domain\bin\Debug\net8.0\Auth.Domain.deps.json
+D:\ParkEase\src\Services\AuthService\Auth.Domain\bin\Debug\net8.0\Auth.Domain.dll
+D:\ParkEase\src\Services\AuthService\Auth.Domain\bin\Debug\net8.0\Auth.Domain.pdb
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\Auth.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\Auth.Domain.AssemblyInfoInputs.cache
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\Auth.Domain.AssemblyInfo.cs
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\Auth.Domain.csproj.CoreCompileInputs.cache
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\Auth.Domain.dll
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\refint\Auth.Domain.dll
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\Auth.Domain.pdb
+D:\ParkEase\src\Services\AuthService\Auth.Domain\obj\Debug\net8.0\ref\Auth.Domain.dll
