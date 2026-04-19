@@ -1,0 +1,16 @@
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\bin\Debug\net10.0\ParkingLot.Application.deps.json
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\bin\Debug\net10.0\ParkingLot.Application.dll
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\bin\Debug\net10.0\ParkingLot.Application.pdb
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\bin\Debug\net10.0\ParkingLot.Domain.dll
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\bin\Debug\net10.0\ParkingLot.Domain.pdb
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.csproj.AssemblyReference.cache
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.AssemblyInfoInputs.cache
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.AssemblyInfo.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.csproj.CoreCompileInputs.cache
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.sourcelink.json
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingL.F4E29B07.Up2Date
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.dll
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\refint\ParkingLot.Application.dll
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ParkingLot.Application.pdb
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net10.0\ref\ParkingLot.Application.dll
