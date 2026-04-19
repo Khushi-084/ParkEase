@@ -1,0 +1,45 @@
+@'
+# Build outputs
+bin/
+obj/
+
+# .NET
+*.user
+*.suo
+.vs/
+*.rsuser
+
+# Environment & secrets
+appsettings.Development.json
+*.env
+.env
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Rider/VS Code
+.idea/
+.vscode/
+*.code-workspace
+
+# EF Core Migrations (optional - remove if you want to track migrations)
+# */Migrations/
+
+# Docker volumes
+postgres-data/
+
+# Publish output
+publish/
+out/
+'@ | Set-Content -Path .gitignore -Encoding UTF8
