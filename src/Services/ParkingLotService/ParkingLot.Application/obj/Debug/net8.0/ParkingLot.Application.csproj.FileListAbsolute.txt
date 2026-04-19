@@ -8,6 +8,7 @@ D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8
 D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8.0\ParkingLot.Application.AssemblyInfoInputs.cache
 D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8.0\ParkingLot.Application.AssemblyInfo.cs
 D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8.0\ParkingLot.Application.csproj.CoreCompileInputs.cache
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8.0\ParkingLot.Application.sourcelink.json
 D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8.0\ParkingL.F4E29B07.Up2Date
 D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8.0\ParkingLot.Application.dll
 D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\obj\Debug\net8.0\refint\ParkingLot.Application.dll

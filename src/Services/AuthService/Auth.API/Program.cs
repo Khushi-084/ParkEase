@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // ── Database ────────────────────────────────────────────────────────────────
 var connStr = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDbContext<AuthDbContext>(opt =>
-    opt.UseMySql(connStr, ServerVersion.AutoDetect(connStr)));
+    opt.UseMySql(connStr, new MySqlServerVersion(new Version(8, 0, 0))));
 
 // ── Dependency Injection ────────────────────────────────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -51,13 +51,17 @@ builder.Services.AddSwaggerGen(c =>
         Scheme       = "Bearer",
         BearerFormat = "JWT",
         In           = ParameterLocation.Header,
-        Description  = "Enter your JWT token. Example: Bearer eyJhbGci..."
+        Description  = "Enter your JWT token here"
     });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {{
         new OpenApiSecurityScheme
         {
-            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id   = "Bearer"
+            }
         },
         Array.Empty<string>()
     }});
@@ -65,16 +69,17 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// ── Auto-run migrations on startup ─────────────────────────────────────────
+// ── Auto-run migrations on startup ──────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     db.Database.Migrate();
 }
 
-// ── HTTP Pipeline ───────────────────────────────────────────────────────────
+// ── HTTP Pipeline ────────────────────────────────────────────────────────────
 app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkEase Auth API v1"));
+app.UseSwaggerUI(c =>
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkEase Auth API v1"));
 
 app.UseAuthentication();
 app.UseAuthorization();

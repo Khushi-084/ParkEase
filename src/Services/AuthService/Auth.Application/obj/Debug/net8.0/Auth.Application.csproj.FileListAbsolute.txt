@@ -8,6 +8,7 @@ D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\Auth.Appl
 D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\Auth.Application.AssemblyInfoInputs.cache
 D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\Auth.Application.AssemblyInfo.cs
 D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\Auth.Application.csproj.CoreCompileInputs.cache
+D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\Auth.Application.sourcelink.json
 D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\Auth.App.E6399BD7.Up2Date
 D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\Auth.Application.dll
 D:\ParkEase\src\Services\AuthService\Auth.Application\obj\Debug\net8.0\refint\Auth.Application.dll

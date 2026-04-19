@@ -110,6 +110,7 @@ D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\Auth.API.Assembly
 D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\Auth.API.csproj.CoreCompileInputs.cache
 D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\Auth.API.MvcApplicationPartsAssemblyInfo.cs
 D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\Auth.API.MvcApplicationPartsAssemblyInfo.cache
+D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\Auth.API.sourcelink.json
 D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\rjimswa.dswa.cache.json
 D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 D:\ParkEase\src\Services\AuthService\Auth.API\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json

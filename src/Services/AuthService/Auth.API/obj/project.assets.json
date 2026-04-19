@@ -3877,11 +3877,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\ParkEase-1\\src\\Services\\AuthService\\Auth.API\\Auth.API.csproj",
+      "projectUniqueName": "D:\\ParkEase\\src\\Services\\AuthService\\Auth.API\\Auth.API.csproj",
       "projectName": "Auth.API",
-      "projectPath": "D:\\ParkEase-1\\src\\Services\\AuthService\\Auth.API\\Auth.API.csproj",
+      "projectPath": "D:\\ParkEase\\src\\Services\\AuthService\\Auth.API\\Auth.API.csproj",
       "packagesPath": "C:\\Users\\khush\\.nuget\\packages\\",
-      "outputPath": "D:\\ParkEase-1\\src\\Services\\AuthService\\Auth.API\\obj\\",
+      "outputPath": "D:\\ParkEase\\src\\Services\\AuthService\\Auth.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -3903,11 +3903,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\ParkEase-1\\src\\Services\\AuthService\\Auth.Application\\Auth.Application.csproj": {
-              "projectPath": "D:\\ParkEase-1\\src\\Services\\AuthService\\Auth.Application\\Auth.Application.csproj"
+            "D:\\ParkEase\\src\\Services\\AuthService\\Auth.Application\\Auth.Application.csproj": {
+              "projectPath": "D:\\ParkEase\\src\\Services\\AuthService\\Auth.Application\\Auth.Application.csproj"
             },
-            "D:\\ParkEase-1\\src\\Services\\AuthService\\Auth.Infrastructure\\Auth.Infrastructure.csproj": {
-              "projectPath": "D:\\ParkEase-1\\src\\Services\\AuthService\\Auth.Infrastructure\\Auth.Infrastructure.csproj"
+            "D:\\ParkEase\\src\\Services\\AuthService\\Auth.Infrastructure\\Auth.Infrastructure.csproj": {
+              "projectPath": "D:\\ParkEase\\src\\Services\\AuthService\\Auth.Infrastructure\\Auth.Infrastructure.csproj"
             }
           }
         }
