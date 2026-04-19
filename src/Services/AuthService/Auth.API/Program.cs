@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Auth.Application.Interfaces;
 using Auth.Infrastructure.Persistence;
 using Auth.Infrastructure.Repositories;
@@ -10,16 +10,13 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Database ────────────────────────────────────────────────────────────────
 var connStr = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDbContext<AuthDbContext>(opt =>
-    opt.UseMySql(connStr, new MySqlServerVersion(new Version(8, 0, 0))));
+    opt.UseNpgsql(connStr));
 
-// ── Dependency Injection ────────────────────────────────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, Auth.Infrastructure.Services.AuthService>();
 
-// ── JWT Authentication ──────────────────────────────────────────────────────
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
@@ -40,7 +37,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// ── Swagger with JWT support ────────────────────────────────────────────────
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "ParkEase Auth API", Version = "v1" });
@@ -48,7 +44,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Name         = "Authorization",
         Type         = SecuritySchemeType.Http,
-        Scheme       = "Bearer",
+        Scheme       = "bearer",
         BearerFormat = "JWT",
         In           = ParameterLocation.Header,
         Description  = "Enter your JWT token here"
@@ -69,14 +65,12 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// ── Auto-run migrations on startup ──────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     db.Database.Migrate();
 }
 
-// ── HTTP Pipeline ────────────────────────────────────────────────────────────
 app.UseSwagger();
 app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkEase Auth API v1"));
