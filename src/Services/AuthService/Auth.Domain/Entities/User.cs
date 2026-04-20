@@ -11,6 +11,13 @@ public class User
     public string   Phone         { get; set; } = string.Empty;
     public UserRole Role          { get; set; } = UserRole.Driver;
     public bool     IsActive      { get; set; } = true;
+
+    // ✅ NEW — only relevant for LotManager role
+    // true  = admin has approved this LotManager
+    // false = pending approval (LotManager cannot access lot management endpoints)
+    // null  = not applicable (Driver or Admin)
+    public bool?    IsApproved    { get; set; } = null;
+
     public string?  ProfilePicUrl { get; set; }
     public DateTime CreatedAt     { get; set; } = DateTime.UtcNow;
 }

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ParkingLot.API.Middleware;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -74,6 +75,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
+// Blocks unapproved LotManagers from write operations (POST/PUT/PATCH/DELETE)
+app.UseMiddleware<ApprovedLotManagerMiddleware>();
 app.MapControllers();
 
 app.Run();

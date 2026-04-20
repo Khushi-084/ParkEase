@@ -21,8 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ParkingLot.Application\ParkingLot.Application.csproj" />
-    <ProjectReference Include="..\ParkingLot.Infrastructure\ParkingLot.Infrastructure.csproj" />
+    <ProjectReference Include="..\Slot.Application\Slot.Application.csproj" />
+    <ProjectReference Include="..\Slot.Infrastructure\Slot.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
