@@ -50,7 +50,7 @@ public class ParkingLotRepository(ParkingLotDbContext db) : IParkingLotRepositor
 
     public Task SaveChangesAsync() => db.SaveChangesAsync();
 
-    // ✅ FIXED — now truly async and self-contained; call SaveChangesAsync() after this in service
+    // FIXED — now truly async and self-contained; call SaveChangesAsync() after this in service
     public async Task DeleteAsync(ParkingLotEntity lot)
     {
         db.ParkingLots.Remove(lot);

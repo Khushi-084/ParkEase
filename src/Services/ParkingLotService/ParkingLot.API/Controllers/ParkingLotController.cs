@@ -14,7 +14,7 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
     [Authorize(Roles = "Admin,LotManager")]
     [HttpPost]
     [ProducesResponseType(typeof(LotResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]   // ✅ ADDED
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]   
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] CreateLotRequest req)
     {
@@ -63,7 +63,7 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
     [Authorize(Roles = "Admin,LotManager")]
     [HttpPut("{lotId:guid}")]
     [ProducesResponseType(typeof(LotResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]   // ✅ ADDED
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]  
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(Guid lotId, [FromBody] UpdateLotRequest req)

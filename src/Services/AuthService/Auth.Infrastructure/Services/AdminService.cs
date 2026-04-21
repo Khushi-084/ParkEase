@@ -20,7 +20,7 @@ public class AdminService(IUserRepository userRepo) : IAdminService
         return users.Select(MapToProfile);
     }
 
-    // ✅ Returns only LotManagers waiting for approval
+    //  Returns only LotManagers waiting for approval
     public async Task<IEnumerable<UserProfileResponse>> GetPendingLotManagersAsync()
     {
         var users = await userRepo.GetAllUsersAsync(UserRole.LotManager, null);
@@ -34,7 +34,7 @@ public class AdminService(IUserRepository userRepo) : IAdminService
         return MapToProfile(user);
     }
 
-    // ✅ Admin approves a LotManager
+    //  Admin approves a LotManager
     public async Task<UserProfileResponse> ApproveLotManagerAsync(Guid userId)
     {
         var user = await userRepo.FindByUserIdAsync(userId)
@@ -51,7 +51,7 @@ public class AdminService(IUserRepository userRepo) : IAdminService
         return MapToProfile(user);
     }
 
-    // ✅ Admin rejects a LotManager (sets back to unapproved)
+    // Admin rejects a LotManager (sets back to unapproved)
     public async Task<UserProfileResponse> RejectLotManagerAsync(Guid userId)
     {
         var user = await userRepo.FindByUserIdAsync(userId)

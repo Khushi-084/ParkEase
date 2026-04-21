@@ -12,7 +12,7 @@ public class User
     public UserRole Role          { get; set; } = UserRole.Driver;
     public bool     IsActive      { get; set; } = true;
 
-    // ✅ NEW — only relevant for LotManager role
+    // NEW — only relevant for LotManager role
     // true  = admin has approved this LotManager
     // false = pending approval (LotManager cannot access lot management endpoints)
     // null  = not applicable (Driver or Admin)

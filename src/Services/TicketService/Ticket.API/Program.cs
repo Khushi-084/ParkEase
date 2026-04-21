@@ -1,26 +1,32 @@
-﻿using System.Text;
-using Auth.Application.Interfaces;
-using Auth.Infrastructure.Persistence;
-using Auth.Infrastructure.Repositories;
-using Auth.Infrastructure.Seed;
-using Auth.Infrastructure.Services;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Ticket.Application.Interfaces;
+using Ticket.Infrastructure.ExternalServices;
+using Ticket.Infrastructure.Persistence;
+using Ticket.Infrastructure.Repositories;
+using Ticket.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connStr = builder.Configuration.GetConnectionString("Default")!;
-builder.Services.AddDbContext<AuthDbContext>(opt => opt.UseNpgsql(connStr));
+builder.Services.AddDbContext<TicketDbContext>(opt => opt.UseNpgsql(connStr));
+builder.Services.AddHttpContextAccessor();
 
-// ── Dependency Injection ────────────────────────────────────────────────────
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAuthService,   Auth.Infrastructure.Services.AuthService>();
-builder.Services.AddScoped<IAdminService,  AdminService>();
+builder.Services.AddHttpClient("SlotService", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["SlotService:BaseUrl"]!);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
-// ── JWT Authentication ──────────────────────────────────────────────────────
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddScoped<ITicketRepository,  TicketRepository>();
+builder.Services.AddScoped<ISlotServiceClient, SlotServiceClient>();
+builder.Services.AddScoped<ITicketService,     TicketService>();
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
         opt.TokenValidationParameters = new TokenValidationParameters
@@ -39,10 +45,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ParkEase Auth API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ParkEase Ticket API", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name         = "Authorization",
@@ -56,11 +61,7 @@ builder.Services.AddSwaggerGen(c =>
     {{
         new OpenApiSecurityScheme
         {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id   = "Bearer"
-            }
+            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
         },
         Array.Empty<string>()
     }});
@@ -68,17 +69,15 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// ── Migrate DB and seed admin ───────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<TicketDbContext>();
     db.Database.Migrate();
-    await DbSeeder.SeedAdminAsync(db);  // seeds fixed admin on first run
 }
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkEase Auth API v1"));
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkEase Ticket API v1"));
 
 app.UseAuthentication();
 app.UseAuthorization();

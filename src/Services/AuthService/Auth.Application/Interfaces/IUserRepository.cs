@@ -8,8 +8,8 @@ public interface IUserRepository
     Task<User?>              FindByEmailAsync(string email);
     Task<User?>              FindByUserIdAsync(Guid userId);
     Task<bool>               ExistsByEmailAsync(string email);
-    Task<IEnumerable<User>>  GetAllUsersAsync(UserRole? role, bool? isActive); // ✅ NEW
+    Task<IEnumerable<User>>  GetAllUsersAsync(UserRole? role, bool? isActive); 
     Task                     AddAsync(User user);
-    Task                     DeleteAsync(User user);                           // ✅ NEW
+    Task                     DeleteAsync(User user);                          
     Task                     SaveChangesAsync();
 }

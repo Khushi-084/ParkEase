@@ -17,7 +17,7 @@ public class UserRepository(AuthDbContext db) : IUserRepository
     public Task<bool> ExistsByEmailAsync(string email) =>
         db.Users.AnyAsync(u => u.Email == email.ToLower().Trim());
 
-    // ✅ NEW — get all users with optional role and active filters
+    //  NEW — get all users with optional role and active filters
     public async Task<IEnumerable<User>> GetAllUsersAsync(UserRole? role, bool? isActive)
     {
         var query = db.Users.AsQueryable();

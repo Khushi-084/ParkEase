@@ -60,6 +60,16 @@ public class SlotController(ISlotService slotService) : ControllerBase
     public async Task<IActionResult> GetByLot(Guid lotId) =>
         Ok(await slotService.GetByLotIdAsync(lotId));
 
+    // GET /api/v1/slots/available/first
+    [HttpGet("available/first")]
+    [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFirstAvailable()
+    {
+        try   { return Ok(await slotService.GetFirstAvailableAsync()); }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
     // GET /api/v1/slots/lot/{lotId}/availability?type=Car
     [HttpGet("lot/{lotId:guid}/availability")]
     [ProducesResponseType(typeof(SlotAvailabilityResponse), StatusCodes.Status200OK)]

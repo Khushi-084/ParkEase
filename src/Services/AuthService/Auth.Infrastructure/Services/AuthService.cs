@@ -30,7 +30,7 @@ public class AuthService(IUserRepository userRepo, IConfiguration config) : IAut
             Phone        = req.Phone.Trim(),
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
             Role         = role,
-            // ✅ LotManager starts as unapproved — needs admin approval
+            //  LotManager starts as unapproved — needs admin approval
             // Driver gets null (approval not applicable)
             IsApproved   = role == UserRole.LotManager ? false : null
         };
@@ -51,7 +51,7 @@ public class AuthService(IUserRepository userRepo, IConfiguration config) : IAut
         if (!BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash))
             throw new UnauthorizedAccessException("Invalid email or password.");
 
-        // ✅ LotManager blocked until admin approves
+        // LotManager blocked until admin approves
         if (user.Role == UserRole.LotManager && user.IsApproved == false)
             throw new UnauthorizedAccessException(
                 "Your LotManager account is pending admin approval. Please wait for approval.");

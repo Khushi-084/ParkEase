@@ -104,7 +104,7 @@ public class ParkingLotService(IParkingLotRepository repo) : IParkingLotService
         var lot = await repo.GetByIdAsync(lotId)
             ?? throw new KeyNotFoundException($"Parking lot '{lotId}' not found.");
 
-        // ✅ FIXED — DeleteAsync in repo now handles SaveChanges internally
+        // DeleteAsync in repo now handles SaveChanges internally
         await repo.DeleteAsync(lot);
     }
 

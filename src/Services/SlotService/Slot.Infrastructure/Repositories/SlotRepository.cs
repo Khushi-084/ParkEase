@@ -28,6 +28,12 @@ public class SlotRepository(SlotDbContext db) : ISlotRepository
         return await query.OrderBy(s => s.SlotNumber).ToListAsync();
     }
 
+    public Task<SlotEntity?> GetFirstAvailableAsync() =>
+        db.Slots
+            .Where(s => s.Status == SlotStatus.Available)
+            .OrderBy(s => s.SlotNumber)
+            .FirstOrDefaultAsync();
+
     public Task<bool> ExistsBySlotNumberAsync(Guid lotId, string slotNumber, Guid? excludeId = null)
     {
         var query = db.Slots.Where(s =>
