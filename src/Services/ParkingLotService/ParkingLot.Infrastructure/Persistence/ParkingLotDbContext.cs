@@ -25,7 +25,7 @@ public class ParkingLotDbContext(DbContextOptions<ParkingLotDbContext> options) 
             e.HasIndex(p => p.City);
             e.HasIndex(p => p.Status);
             e.HasIndex(p => p.ManagerId);
-            e.HasIndex(p => new { p.Name, p.City }).IsUnique();  // ✅ ADDED — prevents race-condition duplicates
+            e.HasIndex(p => new { p.Name, p.City }).IsUnique();  // prevents race-condition duplicates
         });
     }
 }

@@ -11,5 +11,6 @@ public interface ISlotService
     Task<SlotAvailabilityResponse>  GetAvailabilityAsync(Guid lotId, string? type = null);
     Task<SlotResponse>              UpdateAsync(Guid slotId, UpdateSlotRequest req);
     Task<SlotResponse>              UpdateStatusAsync(Guid slotId, SlotStatusUpdateRequest req);
+    Task<SlotResponse>              GetFirstAvailableAsync();
     Task                            DeleteAsync(Guid slotId);
 }

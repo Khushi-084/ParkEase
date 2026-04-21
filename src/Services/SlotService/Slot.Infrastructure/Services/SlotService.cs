@@ -1,4 +1,4 @@
-﻿using Slot.Application.DTOs;
+using Slot.Application.DTOs;
 using Slot.Application.Interfaces;
 using Slot.Domain.Entities;
 using Slot.Domain.Enums;
@@ -124,6 +124,13 @@ public class SlotService(ISlotRepository repo) : ISlotService
         slot.UpdatedAt = DateTime.UtcNow;
 
         await repo.SaveChangesAsync();
+        return Map(slot);
+    }
+
+    public async Task<SlotResponse> GetFirstAvailableAsync()
+    {
+        var slot = await repo.GetFirstAvailableAsync()
+            ?? throw new KeyNotFoundException("No available slots found in the parking lot.");
         return Map(slot);
     }
 
