@@ -6,52 +6,29 @@ using Ticket.Domain.Enums;
 
 namespace Ticket.Infrastructure.Services;
 
-/// <summary>
-/// Implements the core parking ticket lifecycle:
-/// vehicle entry (slot allocation + ticket creation) and
-/// vehicle exit (billing + slot release + ticket completion).
-/// </summary>
 public partial class TicketService(
-    ITicketRepository  ticketRepository,
-    ISlotServiceClient slotClient) : ITicketService
+    ITicketRepository      ticketRepository,
+    ISlotServiceClient     slotClient,
+    IPaymentServiceClient  paymentClient) : ITicketService
 {
-    /// <summary>
-    /// Parking rate in INR per hour. Duration is always rounded up (ceiling).
-    /// </summary>
     private const decimal RatePerHour = 20m;
 
-    /// <summary>
-    /// Compiled regex used to validate vehicle numbers before persistence.
-    /// Indian format: 2 letters + 1-2 digits + 1-3 letters + 4 digits. e.g. MH12AB1234
-    /// </summary>
     [GeneratedRegex(@"^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{4}$", RegexOptions.Compiled)]
     private static partial Regex VehicleNumberRegex();
 
     // ── Entry Flow ────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Handles vehicle entry:
-    /// 1. Validates and normalises vehicle number via regex.
-    /// 2. Fetches the first available slot from SlotService.
-    /// 3. Marks the slot as Occupied.
-    /// 4. Persists and returns the new Active ticket.
-    /// </summary>
     public async Task<TicketResponse> CreateTicketAsync(CreateTicketRequest request)
     {
-        // Normalise and validate vehicle number
         var vehicleNumber = request.VehicleNumber.Trim().ToUpperInvariant();
 
         if (!VehicleNumberRegex().IsMatch(vehicleNumber))
             throw new ArgumentException(
                 $"VehicleNumber '{vehicleNumber}' does not match the required format (e.g. MH12AB1234).");
 
-        // 1. Fetch first available slot from SlotService
-        var slot = await slotClient.GetAvailableSlotAsync();
-
-        // 2. Mark slot as Occupied
+        var slot = await slotClient.GetAvailableSlotAsync(request.SlotType);
         await slotClient.MarkSlotOccupiedAsync(slot.SlotId);
 
-        // 3. Create and persist the ticket
         var ticket = new TicketEntity
         {
             VehicleNumber = vehicleNumber,
@@ -67,53 +44,70 @@ public partial class TicketService(
 
     // ── Exit Flow ─────────────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Handles vehicle exit:
-    /// 1. Fetches the ticket and guards against double-exit.
-    /// 2. Calculates parking duration (ceiling to next whole hour).
-    /// 3. Applies pricing rule: Rs.20 per hour.
-    /// 4. Frees the slot in SlotService.
-    /// 5. Persists and returns the Completed ticket with bill details.
-    /// </summary>
-    public async Task<ExitTicketResponse> ExitTicketAsync(Guid ticketId)
+    public async Task<ExitTicketResponse> ExitTicketAsync(Guid ticketId, string paymentMode)
     {
-        // 1. Fetch ticket — throws 404-mappable exception if missing
         var ticket = await ticketRepository.GetByIdAsync(ticketId)
                      ?? throw new KeyNotFoundException($"Ticket '{ticketId}' not found.");
 
-        // Guard: prevent processing an already-completed ticket
         if (ticket.Status == TicketStatus.Completed)
             throw new InvalidOperationException(
                 $"Ticket '{ticketId}' has already been completed. Double-exit is not allowed.");
 
-        // 2. Calculate duration rounded up to the nearest whole hour
-        var exitTime      = DateTime.UtcNow;
-        var rawHours      = (exitTime - ticket.EntryTime).TotalHours;
-        var billedHours   = Math.Ceiling(rawHours);   // e.g. 1.1h → 2h
+        // Step 1: Calculate billing
+        var exitTime    = DateTime.UtcNow;
+        var rawHours    = (exitTime - ticket.EntryTime).TotalHours;
+        var billedHours = Math.Ceiling(rawHours);
+        var amount      = (decimal)billedHours * RatePerHour;
 
-        // 3. Apply pricing: Rs.20 per billed hour
-        var amount = (decimal)billedHours * RatePerHour;
-
-        // 4. Release the slot back to Available in SlotService
+        // Step 2: Release slot
         await slotClient.MarkSlotAvailableAsync(ticket.SlotId);
 
-        // 5. Update and persist the ticket
+        // Step 3: Complete the ticket
         ticket.ExitTime = exitTime;
         ticket.Amount   = amount;
         ticket.Status   = TicketStatus.Completed;
-
         var updated = await ticketRepository.UpdateAsync(ticket);
 
+        // Step 4: Trigger payment in PaymentService
+        // This is the link between TicketService and PaymentService for walk-in flow.
+        var paymentResult = await paymentClient.CreatePaymentAsync(
+            new InitiateTicketPaymentRequest(
+                TicketId: updated.Id,
+                Amount:   updated.Amount,
+                Mode:     paymentMode
+            ));
+
         return new ExitTicketResponse(
-            Id:            updated.Id,
-            VehicleNumber: updated.VehicleNumber,
-            SlotId:        updated.SlotId,
-            EntryTime:     updated.EntryTime,
-            ExitTime:      updated.ExitTime!.Value,
-            DurationHours: billedHours,
-            Status:        updated.Status.ToString(),
-            Amount:        updated.Amount
+            Id:              updated.Id,
+            VehicleNumber:   updated.VehicleNumber,
+            SlotId:          updated.SlotId,
+            EntryTime:       updated.EntryTime,
+            ExitTime:        updated.ExitTime!.Value,
+            DurationHours:   billedHours,
+            Status:          updated.Status.ToString(),
+            Amount:          updated.Amount,
+            PaymentId:       paymentResult.PaymentId,
+            PaymentStatus:   paymentResult.Status,
+            RazorpayOrderId: paymentResult.RazorpayOrderId
         );
+    }
+
+    // ── Get by ID ─────────────────────────────────────────────────────────────
+
+    public async Task<TicketResponse> GetByIdAsync(Guid ticketId)
+    {
+        var ticket = await ticketRepository.GetByIdAsync(ticketId)
+                     ?? throw new KeyNotFoundException($"Ticket '{ticketId}' not found.");
+        return MapToTicketResponse(ticket);
+    }
+
+    // ── Active-count for lot-delete guard ─────────────────────────────────────
+
+    public async Task<int> GetActiveCountByLotAsync(Guid lotId)
+    {
+        var slotIds = (await slotClient.GetSlotIdsByLotAsync(lotId)).ToList();
+        if (!slotIds.Any()) return 0;
+        return await ticketRepository.GetActiveCountBySlotIdsAsync(slotIds);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -2,6 +2,8 @@
 
 namespace Slot.Application.DTOs;
 
+// FIXED: All Type regex patterns and error messages updated to include EV
+
 public record CreateSlotRequest(
     [Required(ErrorMessage = "LotId is required.")]
     Guid LotId,
@@ -12,7 +14,7 @@ public record CreateSlotRequest(
     string SlotNumber,
 
     [Required(ErrorMessage = "Slot type is required.")]
-    [RegularExpression("^(Car|Bike|Truck|EV)$",
+    [RegularExpression("^(Car|Bike|Truck|EV)$",         // FIXED: added EV
         ErrorMessage = "Type must be one of: Car, Bike, Truck, EV.")]
     string Type,
 
@@ -27,7 +29,7 @@ public record UpdateSlotRequest(
     string SlotNumber,
 
     [Required(ErrorMessage = "Slot type is required.")]
-    [RegularExpression("^(Car|Bike|Truck|EV)$",
+    [RegularExpression("^(Car|Bike|Truck|EV)$",         // FIXED: added EV
         ErrorMessage = "Type must be one of: Car, Bike, Truck, EV.")]
     string Type,
 
@@ -47,7 +49,7 @@ public record BulkCreateSlotRequest(
     Guid LotId,
 
     [Required(ErrorMessage = "Slot type is required.")]
-    [RegularExpression("^(Car|Bike|Truck|EV)$",
+    [RegularExpression("^(Car|Bike|Truck|EV)$",         // FIXED: added EV
         ErrorMessage = "Type must be one of: Car, Bike, Truck, EV.")]
     string Type,
 

@@ -7,10 +7,14 @@ namespace Slot.Infrastructure.Services;
 
 public class SlotService(ISlotRepository repo) : ISlotService
 {
+    private const string ValidTypes = "Car, Bike, Truck, EV";
+
+    // ── Existing methods (unchanged) ──────────────────────────────────────────
+
     public async Task<SlotResponse> CreateAsync(CreateSlotRequest req)
     {
         if (!Enum.TryParse<SlotType>(req.Type, ignoreCase: true, out var slotType))
-            throw new ArgumentException($"Invalid slot type '{req.Type}'. Use: Car, Bike, Truck.");
+            throw new ArgumentException($"Invalid slot type '{req.Type}'. Use: {ValidTypes}.");
 
         if (await repo.ExistsBySlotNumberAsync(req.LotId, req.SlotNumber))
             throw new InvalidOperationException($"Slot '{req.SlotNumber}' already exists in this lot.");
@@ -31,15 +35,16 @@ public class SlotService(ISlotRepository repo) : ISlotService
     public async Task<IEnumerable<SlotResponse>> BulkCreateAsync(BulkCreateSlotRequest req)
     {
         if (!Enum.TryParse<SlotType>(req.Type, ignoreCase: true, out var slotType))
-            throw new ArgumentException($"Invalid slot type '{req.Type}'. Use: Car, Bike, Truck.");
+            throw new ArgumentException($"Invalid slot type '{req.Type}'. Use: {ValidTypes}.");
 
+        var existingNumbers = (await repo.GetExistingSlotNumbersAsync(req.LotId))
+                              .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var slots = new List<SlotEntity>();
 
         for (int i = 1; i <= req.Count; i++)
         {
             var slotNumber = $"{req.Prefix.ToUpper()}-{i:D2}";
-
-            if (await repo.ExistsBySlotNumberAsync(req.LotId, slotNumber))
+            if (existingNumbers.Contains(slotNumber))
                 throw new InvalidOperationException($"Slot '{slotNumber}' already exists in this lot.");
 
             slots.Add(new SlotEntity
@@ -64,10 +69,7 @@ public class SlotService(ISlotRepository repo) : ISlotService
     }
 
     public async Task<IEnumerable<SlotResponse>> GetByLotIdAsync(Guid lotId)
-    {
-        var slots = await repo.GetByLotIdAsync(lotId);
-        return slots.Select(Map);
-    }
+        => (await repo.GetByLotIdAsync(lotId)).Select(Map);
 
     public async Task<SlotAvailabilityResponse> GetAvailabilityAsync(Guid lotId, string? type = null)
     {
@@ -75,7 +77,7 @@ public class SlotService(ISlotRepository repo) : ISlotService
         if (!string.IsNullOrWhiteSpace(type))
         {
             if (!Enum.TryParse<SlotType>(type, ignoreCase: true, out var parsed))
-                throw new ArgumentException($"Invalid slot type '{type}'. Use: Car, Bike, Truck.");
+                throw new ArgumentException($"Invalid slot type '{type}'. Use: {ValidTypes}.");
             slotType = parsed;
         }
 
@@ -98,7 +100,7 @@ public class SlotService(ISlotRepository repo) : ISlotService
             ?? throw new KeyNotFoundException($"Slot '{slotId}' not found.");
 
         if (!Enum.TryParse<SlotType>(req.Type, ignoreCase: true, out var slotType))
-            throw new ArgumentException($"Invalid slot type '{req.Type}'. Use: Car, Bike, Truck.");
+            throw new ArgumentException($"Invalid slot type '{req.Type}'. Use: {ValidTypes}.");
 
         if (await repo.ExistsBySlotNumberAsync(slot.LotId, req.SlotNumber, excludeId: slotId))
             throw new InvalidOperationException($"Slot '{req.SlotNumber}' already exists in this lot.");
@@ -127,10 +129,21 @@ public class SlotService(ISlotRepository repo) : ISlotService
         return Map(slot);
     }
 
-    public async Task<SlotResponse> GetFirstAvailableAsync()
+    public async Task<SlotResponse> GetFirstAvailableAsync(string? type = null)
     {
-        var slot = await repo.GetFirstAvailableAsync()
-            ?? throw new KeyNotFoundException("No available slots found in the parking lot.");
+        SlotType? slotType = null;
+        if (!string.IsNullOrWhiteSpace(type))
+        {
+            if (!Enum.TryParse<SlotType>(type, ignoreCase: true, out var parsed))
+                throw new ArgumentException($"Invalid slot type '{type}'. Use: {ValidTypes}.");
+            slotType = parsed;
+        }
+
+        var slot = await repo.GetFirstAvailableAsync(slotType)
+            ?? throw new KeyNotFoundException(
+                slotType.HasValue
+                    ? $"No available {slotType} slots found."
+                    : "No available slots found.");
         return Map(slot);
     }
 
@@ -140,6 +153,78 @@ public class SlotService(ISlotRepository repo) : ISlotService
             ?? throw new KeyNotFoundException($"Slot '{slotId}' not found.");
         await repo.DeleteAsync(slot);
     }
+
+    // ── NEW: Booking Saga operations ──────────────────────────────────────────
+
+    /// <summary>
+    /// Reserve a slot for a pending booking (Available → Reserved).
+    /// Part of the Saga: called synchronously by Booking Service before
+    /// creating a Razorpay order.
+    /// </summary>
+    public async Task<SlotResponse> ReserveSlotAsync(Guid slotId)
+    {
+        var slot = await repo.GetByIdAsync(slotId)
+            ?? throw new KeyNotFoundException($"Slot '{slotId}' not found.");
+
+        if (slot.Status != SlotStatus.Available)
+            throw new InvalidOperationException(
+                $"Slot '{slotId}' cannot be reserved — current status is '{slot.Status}'. " +
+                "Only Available slots can be reserved.");
+
+        slot.Status    = SlotStatus.Reserved;
+        slot.UpdatedAt = DateTime.UtcNow;
+
+        await repo.SaveChangesAsync();
+        return Map(slot);
+    }
+
+    /// <summary>
+    /// Confirm a reserved slot after payment succeeds (Reserved → Occupied).
+    /// Saga compensation step on PaymentSucceeded event.
+    /// </summary>
+    public async Task<SlotResponse> ConfirmSlotAsync(Guid slotId)
+    {
+        var slot = await repo.GetByIdAsync(slotId)
+            ?? throw new KeyNotFoundException($"Slot '{slotId}' not found.");
+
+        if (slot.Status != SlotStatus.Reserved)
+            throw new InvalidOperationException(
+                $"Slot '{slotId}' cannot be confirmed — current status is '{slot.Status}'. " +
+                "Only Reserved slots can be confirmed.");
+
+        slot.Status    = SlotStatus.Occupied;
+        slot.UpdatedAt = DateTime.UtcNow;
+
+        await repo.SaveChangesAsync();
+        return Map(slot);
+    }
+
+    /// <summary>
+    /// Release a reserved slot after payment fails (Reserved → Available).
+    /// Saga compensation step on PaymentFailed event.
+    /// </summary>
+    public async Task<SlotResponse> ReleaseSlotAsync(Guid slotId)
+    {
+        var slot = await repo.GetByIdAsync(slotId)
+            ?? throw new KeyNotFoundException($"Slot '{slotId}' not found.");
+
+        // Idempotent: if already Available, nothing to do
+        if (slot.Status == SlotStatus.Available)
+            return Map(slot);
+
+        if (slot.Status != SlotStatus.Reserved)
+            throw new InvalidOperationException(
+                $"Slot '{slotId}' cannot be released — current status is '{slot.Status}'. " +
+                "Only Reserved slots can be released back to Available.");
+
+        slot.Status    = SlotStatus.Available;
+        slot.UpdatedAt = DateTime.UtcNow;
+
+        await repo.SaveChangesAsync();
+        return Map(slot);
+    }
+
+    // ── Mapper ────────────────────────────────────────────────────────────────
 
     private static SlotResponse Map(SlotEntity s) => new(
         s.SlotId, s.LotId, s.SlotNumber,

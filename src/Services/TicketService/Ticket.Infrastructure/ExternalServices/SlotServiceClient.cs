@@ -1,39 +1,22 @@
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http;
 using Ticket.Application.DTOs;
 using Ticket.Application.Interfaces;
 
 namespace Ticket.Infrastructure.ExternalServices;
 
-public class SlotServiceClient(
-    IHttpClientFactory httpClientFactory,
-    IHttpContextAccessor httpContextAccessor) : ISlotServiceClient
+public class SlotServiceClient(IHttpClientFactory httpClientFactory) : ISlotServiceClient
 {
     private static readonly JsonSerializerOptions _jsonOpts = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    private HttpClient Client
-    {
-        get
-        {
-            var client = httpClientFactory.CreateClient("SlotService");
-            var authHeader = httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
-            
-            if (!string.IsNullOrEmpty(authHeader))
-            {
-                client.DefaultRequestHeaders.Remove("Authorization");
-                client.DefaultRequestHeaders.Add("Authorization", authHeader);
-            }
-            
-            return client;
-        }
-    }
+    private HttpClient Client => httpClientFactory.CreateClient("SlotService");
 
-    public async Task<SlotDto> GetAvailableSlotAsync()
+    public async Task<SlotDTO> GetAvailableSlotAsync()
     {
         var response = await Client.GetAsync("api/v1/slots/available/first");
 
@@ -42,9 +25,42 @@ public class SlotServiceClient(
 
         response.EnsureSuccessStatusCode();
 
-        var slot = await response.Content.ReadFromJsonAsync<SlotDto>(_jsonOpts)
+        var slot = await response.Content.ReadFromJsonAsync<SlotDTO>(_jsonOpts)
                    ?? throw new InvalidOperationException("Invalid response from SlotService.");
         return slot;
+    }
+
+    public async Task<SlotDTO> GetAvailableSlotAsync(string? type)
+    {
+        var url = string.IsNullOrEmpty(type) 
+            ? "api/v1/slots/available/first" 
+            : $"api/v1/slots/available/first?type={type}";
+            
+        var response = await Client.GetAsync(url);
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            throw new InvalidOperationException("No available slots found in the parking lot.");
+
+        response.EnsureSuccessStatusCode();
+
+        var slot = await response.Content.ReadFromJsonAsync<SlotDTO>(_jsonOpts)
+                   ?? throw new InvalidOperationException("Invalid response from SlotService.");
+        return slot;
+    }
+
+    public async Task<List<Guid>> GetSlotIdsByLotAsync(Guid lotId)
+    {
+        var response = await Client.GetAsync($"api/v1/slots/lot/{lotId}/ids");
+
+        if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            throw new InvalidOperationException($"No slots found for parking lot {lotId}.");
+
+        response.EnsureSuccessStatusCode();
+
+        var slotIds = await response.Content.ReadFromJsonAsync<List<Guid>>(_jsonOpts)
+                      ?? throw new InvalidOperationException("Invalid response from SlotService.");
+        
+        return slotIds;
     }
 
     public async Task MarkSlotOccupiedAsync(Guid slotId)
