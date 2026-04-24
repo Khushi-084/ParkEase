@@ -9,5 +9,10 @@ public interface IParkingLotService
     Task<PagedResponse<LotResponse>> GetAllAsync(int page, int pageSize, string? city, string? status);
     Task<LotResponse>                UpdateAsync(Guid lotId, UpdateLotRequest request);
     Task<LotResponse>                UpdateStatusAsync(Guid lotId, LotStatusUpdateRequest request);
-    Task                             DeleteAsync(Guid lotId);
+
+    /// <summary>
+    /// FIXED: bearerToken is forwarded to TicketService so it can check
+    /// for active tickets before allowing deletion.
+    /// </summary>
+    Task DeleteAsync(Guid lotId, string bearerToken);
 }

@@ -28,11 +28,11 @@ public class SlotRepository(SlotDbContext db) : ISlotRepository
         return await query.OrderBy(s => s.SlotNumber).ToListAsync();
     }
 
-    public Task<SlotEntity?> GetFirstAvailableAsync() =>
-        db.Slots
-            .Where(s => s.Status == SlotStatus.Available)
-            .OrderBy(s => s.SlotNumber)
-            .FirstOrDefaultAsync();
+    public async Task<IEnumerable<string>> GetExistingSlotNumbersAsync(Guid lotId) =>
+        await db.Slots
+            .Where(s => s.LotId == lotId)
+            .Select(s => s.SlotNumber)
+            .ToListAsync();
 
     public Task<bool> ExistsBySlotNumberAsync(Guid lotId, string slotNumber, Guid? excludeId = null)
     {
@@ -44,6 +44,20 @@ public class SlotRepository(SlotDbContext db) : ISlotRepository
             query = query.Where(s => s.SlotId != excludeId.Value);
 
         return query.AnyAsync();
+    }
+
+    /// <summary>
+    /// FIXED: Supports optional SlotType filter so TicketService can get a
+    /// type-specific available slot (e.g. the first available EV slot).
+    /// </summary>
+    public Task<SlotEntity?> GetFirstAvailableAsync(SlotType? type = null)
+    {
+        var query = db.Slots.Where(s => s.Status == SlotStatus.Available);
+
+        if (type.HasValue)
+            query = query.Where(s => s.Type == type.Value);
+
+        return query.OrderBy(s => s.SlotNumber).FirstOrDefaultAsync();
     }
 
     public async Task AddAsync(SlotEntity slot) =>

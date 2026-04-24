@@ -5,126 +5,182 @@ using Slot.Application.Interfaces;
 
 namespace Slot.API.Controllers;
 
+[Authorize]
 [ApiController]
-[Route("api/v1/slots")]
+[Route("api/slots")]
 [Produces("application/json")]
 public class SlotController(ISlotService slotService) : ControllerBase
 {
-    // POST /api/v1/slots
-    [Authorize(Roles = "Admin,LotManager")]
+    // ── Existing: POST /api/slots ─────────────────────────────────────────────
+
     [HttpPost]
     [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Create([FromBody] CreateSlotRequest req)
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> CreateSlot([FromBody] CreateSlotRequest request)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         try
         {
-            var result = await slotService.CreateAsync(req);
-            return CreatedAtAction(nameof(GetById), new { slotId = result.SlotId }, result);
+            var slot = await slotService.CreateAsync(request);
+            return CreatedAtAction(nameof(GetSlot), new { slotId = slot.SlotId }, slot);
         }
-        catch (ArgumentException ex)        { return BadRequest(new { error = ex.Message }); }
+        catch (ArgumentException ex)         { return BadRequest(new { error = ex.Message }); }
         catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
     }
 
-    // POST /api/v1/slots/bulk
-    [Authorize(Roles = "Admin,LotManager")]
+    // ── Existing: POST /api/slots/bulk ────────────────────────────────────────
+
     [HttpPost("bulk")]
     [ProducesResponseType(typeof(IEnumerable<SlotResponse>), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> BulkCreate([FromBody] BulkCreateSlotRequest req)
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> BulkCreateSlots([FromBody] BulkCreateSlotRequest request)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         try
         {
-            var result = await slotService.BulkCreateAsync(req);
-            return StatusCode(StatusCodes.Status201Created, result);
+            var slots = await slotService.BulkCreateAsync(request);
+            return StatusCode(StatusCodes.Status201Created, slots);
         }
-        catch (ArgumentException ex)        { return BadRequest(new { error = ex.Message }); }
+        catch (ArgumentException ex)         { return BadRequest(new { error = ex.Message }); }
         catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
     }
 
-    // GET /api/v1/slots/{slotId}
+    // ── Existing: GET /api/slots/{slotId} ────────────────────────────────────
+
     [HttpGet("{slotId:guid}")]
     [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid slotId)
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetSlot(Guid slotId)
     {
         try   { return Ok(await slotService.GetByIdAsync(slotId)); }
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }
 
-    // GET /api/v1/slots/lot/{lotId}
+    // ── Existing: GET /api/slots/lot/{lotId} ─────────────────────────────────
+
     [HttpGet("lot/{lotId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<SlotResponse>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetByLot(Guid lotId) =>
-        Ok(await slotService.GetByLotIdAsync(lotId));
+    public async Task<IActionResult> GetSlotsByLot(Guid lotId)
+        => Ok(await slotService.GetByLotIdAsync(lotId));
 
-    // GET /api/v1/slots/available/first
-    [HttpGet("available/first")]
-    [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetFirstAvailable()
-    {
-        try   { return Ok(await slotService.GetFirstAvailableAsync()); }
-        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
-    }
+    // ── Existing: GET /api/slots/lot/{lotId}/availability ────────────────────
 
-    // GET /api/v1/slots/lot/{lotId}/availability?type=Car
     [HttpGet("lot/{lotId:guid}/availability")]
     [ProducesResponseType(typeof(SlotAvailabilityResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAvailability(Guid lotId, [FromQuery] string? type = null)
     {
         try   { return Ok(await slotService.GetAvailabilityAsync(lotId, type)); }
         catch (ArgumentException ex) { return BadRequest(new { error = ex.Message }); }
     }
 
-    // PUT /api/v1/slots/{slotId}
-    [Authorize(Roles = "Admin,LotManager")]
+    // ── Existing: GET /api/slots/available ───────────────────────────────────
+
+    [HttpGet("available")]
+    [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFirstAvailable([FromQuery] string? type = null)
+    {
+        try   { return Ok(await slotService.GetFirstAvailableAsync(type)); }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+        catch (ArgumentException ex)    { return BadRequest(new { error = ex.Message }); }
+    }
+
+    // ── Existing: PUT /api/slots/{slotId} ────────────────────────────────────
+
     [HttpPut("{slotId:guid}")]
     [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Update(Guid slotId, [FromBody] UpdateSlotRequest req)
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateSlot(Guid slotId, [FromBody] UpdateSlotRequest request)
     {
-        try
-        {
-            return Ok(await slotService.UpdateAsync(slotId, req));
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        try   { return Ok(await slotService.UpdateAsync(slotId, request)); }
         catch (KeyNotFoundException ex)      { return NotFound(new { error = ex.Message }); }
         catch (ArgumentException ex)         { return BadRequest(new { error = ex.Message }); }
         catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
     }
 
-    // PATCH /api/v1/slots/{slotId}/status
-    [Authorize(Roles = "Admin,LotManager")]
+    // ── Existing: PATCH /api/slots/{slotId}/status ───────────────────────────
+
     [HttpPatch("{slotId:guid}/status")]
     [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateStatus(Guid slotId, [FromBody] SlotStatusUpdateRequest req)
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateSlotStatus(
+        Guid slotId, [FromBody] SlotStatusUpdateRequest request)
     {
-        try
-        {
-            return Ok(await slotService.UpdateStatusAsync(slotId, req));
-        }
-        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
-        catch (ArgumentException ex)    { return BadRequest(new { error = ex.Message }); }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        try   { return Ok(await slotService.UpdateStatusAsync(slotId, request)); }
+        catch (KeyNotFoundException ex)  { return NotFound(new { error = ex.Message }); }
+        catch (ArgumentException ex)     { return BadRequest(new { error = ex.Message }); }
     }
 
-    // DELETE /api/v1/slots/{slotId}
-    [Authorize(Roles = "Admin")]
+    // ── Existing: DELETE /api/slots/{slotId} ─────────────────────────────────
+
     [HttpDelete("{slotId:guid}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid slotId)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteSlot(Guid slotId)
+    {
+        try   { await slotService.DeleteAsync(slotId); return NoContent(); }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
+
+    // ── NEW: POST /api/slots/{slotId}/reserve ────────────────────────────────
+    // Called by Booking Service (step 1 of saga): marks slot as Reserved.
+
+    [AllowAnonymous] // Internal service-to-service call; no JWT on internal network
+    [HttpPost("{slotId:guid}/reserve")]
+    [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ReserveSlot(Guid slotId)
+    {
+        var correlationId = Request.Headers.TryGetValue("X-Correlation-Id", out var val)
+            ? val.ToString() : "unknown";
+
+        try
+        {
+            var result = await slotService.ReserveSlotAsync(slotId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)      { return NotFound(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message, correlationId }); }
+    }
+
+    // ── NEW: POST /api/slots/{slotId}/confirm ────────────────────────────────
+    // Called by Booking Service on PaymentSucceeded: marks slot as Occupied.
+
+    [AllowAnonymous]
+    [HttpPost("{slotId:guid}/confirm")]
+    [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> ConfirmSlot(Guid slotId)
     {
         try
         {
-            await slotService.DeleteAsync(slotId);
-            return Ok(new { message = "Slot deleted successfully." });
+            var result = await slotService.ConfirmSlotAsync(slotId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)      { return NotFound(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
+    }
+
+    // ── NEW: POST /api/slots/{slotId}/release ────────────────────────────────
+    // Called by Booking Service on PaymentFailed: returns slot to Available.
+
+    [AllowAnonymous]
+    [HttpPost("{slotId:guid}/release")]
+    [ProducesResponseType(typeof(SlotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReleaseSlot(Guid slotId)
+    {
+        try
+        {
+            var result = await slotService.ReleaseSlotAsync(slotId);
+            return Ok(result);
         }
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }

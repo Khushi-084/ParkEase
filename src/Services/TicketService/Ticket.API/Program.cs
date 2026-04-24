@@ -15,16 +15,29 @@ var connStr = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDbContext<TicketDbContext>(opt => opt.UseNpgsql(connStr));
 builder.Services.AddHttpContextAccessor();
 
+// ── SlotService HTTP client ───────────────────────────────────────────────────
 builder.Services.AddHttpClient("SlotService", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["SlotService:BaseUrl"]!);
+    client.Timeout     = TimeSpan.FromSeconds(30);
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
-builder.Services.AddScoped<ITicketRepository,  TicketRepository>();
-builder.Services.AddScoped<ISlotServiceClient, SlotServiceClient>();
-builder.Services.AddScoped<ITicketService,     TicketService>();
+// ── PaymentService HTTP client ────────────────────────────────────────────────
+builder.Services.AddHttpClient("PaymentService", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["PaymentService:BaseUrl"]!);
+    client.Timeout     = TimeSpan.FromSeconds(30);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
+// ── Repositories & Services ───────────────────────────────────────────────────
+builder.Services.AddScoped<ITicketRepository,     TicketRepository>();
+builder.Services.AddScoped<ISlotServiceClient,    SlotServiceClient>();
+builder.Services.AddScoped<IPaymentServiceClient, PaymentServiceClient>(); // NEW
+builder.Services.AddScoped<ITicketService,        TicketService>();
+
+// ── JWT ───────────────────────────────────────────────────────────────────────
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>

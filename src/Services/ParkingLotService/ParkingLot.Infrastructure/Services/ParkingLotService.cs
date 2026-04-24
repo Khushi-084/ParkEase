@@ -5,13 +5,19 @@ using ParkingLot.Domain.Enums;
 
 namespace ParkingLot.Infrastructure.Services;
 
-public class ParkingLotService(IParkingLotRepository repo) : IParkingLotService
+public class ParkingLotService(
+    IParkingLotRepository repo,
+    ITicketServiceClient  ticketClient) : IParkingLotService
 {
     public async Task<LotResponse> CreateAsync(CreateLotRequest req)
     {
         if (await repo.ExistsByNameAndCityAsync(req.Name, req.City))
             throw new InvalidOperationException(
                 $"A parking lot named '{req.Name}' already exists in {req.City}.");
+
+        // FIXED: ManagerId must not be an empty GUID
+        if (req.ManagerId == Guid.Empty)
+            throw new ArgumentException("ManagerId cannot be an empty GUID.");
 
         var lot = new ParkingLotEntity
         {
@@ -99,12 +105,21 @@ public class ParkingLotService(IParkingLotRepository repo) : IParkingLotService
         return Map(lot);
     }
 
-    public async Task DeleteAsync(Guid lotId)
+    /// <summary>
+    /// FIXED: Checks TicketService for active tickets before deleting the lot.
+    /// Returns 409 Conflict if vehicles are still parked.
+    /// </summary>
+    public async Task DeleteAsync(Guid lotId, string bearerToken)
     {
         var lot = await repo.GetByIdAsync(lotId)
             ?? throw new KeyNotFoundException($"Parking lot '{lotId}' not found.");
 
-        // DeleteAsync in repo now handles SaveChanges internally
+        var hasActiveTickets = await ticketClient.HasActiveTicketsForLotAsync(lotId, bearerToken);
+        if (hasActiveTickets)
+            throw new InvalidOperationException(
+                $"Cannot delete lot '{lotId}': it has vehicles currently parked. " +
+                "All vehicles must exit before the lot can be deleted.");
+
         await repo.DeleteAsync(lot);
     }
 

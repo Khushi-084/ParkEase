@@ -14,7 +14,7 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
     [Authorize(Roles = "Admin,LotManager")]
     [HttpPost]
     [ProducesResponseType(typeof(LotResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] CreateLotRequest req)
     {
@@ -23,10 +23,8 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
             var result = await lotService.CreateAsync(req);
             return CreatedAtAction(nameof(GetById), new { lotId = result.LotId }, result);
         }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new { error = ex.Message });
-        }
+        catch (ArgumentException ex)         { return BadRequest(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
     }
 
     // GET /api/v1/lots
@@ -53,17 +51,14 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
             var result = await lotService.GetByIdAsync(lotId);
             return Ok(result);
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { error = ex.Message });
-        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
     }
 
     // PUT /api/v1/lots/{lotId}
     [Authorize(Roles = "Admin,LotManager")]
     [HttpPut("{lotId:guid}")]
     [ProducesResponseType(typeof(LotResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]  
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(Guid lotId, [FromBody] UpdateLotRequest req)
@@ -73,7 +68,7 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
             var result = await lotService.UpdateAsync(lotId, req);
             return Ok(result);
         }
-        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+        catch (KeyNotFoundException ex)      { return NotFound(new { error = ex.Message }); }
         catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
     }
 
@@ -91,7 +86,7 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
             return Ok(result);
         }
         catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
-        catch (ArgumentException ex) { return BadRequest(new { error = ex.Message }); }
+        catch (ArgumentException ex)    { return BadRequest(new { error = ex.Message }); }
     }
 
     // DELETE /api/v1/lots/{lotId}
@@ -99,16 +94,18 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
     [HttpDelete("{lotId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]   // FIXED: added 409 for active tickets
     public async Task<IActionResult> Delete(Guid lotId)
     {
+        // FIXED: forward the JWT so ParkingLotService can call TicketService
+        var bearerToken = Request.Headers["Authorization"].ToString();
+
         try
         {
-            await lotService.DeleteAsync(lotId);
+            await lotService.DeleteAsync(lotId, bearerToken);
             return Ok(new { message = "Parking lot deleted successfully." });
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { error = ex.Message });
-        }
+        catch (KeyNotFoundException ex)      { return NotFound(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
     }
 }

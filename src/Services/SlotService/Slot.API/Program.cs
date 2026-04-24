@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Slot.API.Middleware;
 using Microsoft.EntityFrameworkCore;
@@ -76,9 +76,9 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "ParkEase Slot API v1"));
 
 app.UseAuthentication();
-app.UseAuthorization();
 // Blocks unapproved LotManagers from write operations (POST/PUT/PATCH/DELETE)
 app.UseMiddleware<ApprovedLotManagerMiddleware>();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

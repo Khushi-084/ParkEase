@@ -1,16 +1,16 @@
 version: '3.9'
 
 services:
-  mysql:
-    image: mysql:8
-    container_name: parkease-mysql
+  postgres:
+    image: postgres:16-alpine
+    container_name: parkease-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: parkease
-      MYSQL_DATABASE: parkease_auth
+      POSTGRES_USER: parkease
+      POSTGRES_PASSWORD: parkease
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -26,4 +26,5 @@ services:
       - "6379:6379"
 
 volumes:
-  mysql-data:
+  postgres-data:
+
