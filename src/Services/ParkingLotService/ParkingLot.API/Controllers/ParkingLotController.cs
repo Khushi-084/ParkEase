@@ -18,9 +18,10 @@ public class ParkingLotController(IParkingLotService lotService) : ControllerBas
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] CreateLotRequest req)
     {
+        var bearerToken = Request.Headers["Authorization"].ToString();
         try
         {
-            var result = await lotService.CreateAsync(req);
+            var result = await lotService.CreateAsync(req, bearerToken);
             return CreatedAtAction(nameof(GetById), new { lotId = result.LotId }, result);
         }
         catch (ArgumentException ex)         { return BadRequest(new { error = ex.Message }); }

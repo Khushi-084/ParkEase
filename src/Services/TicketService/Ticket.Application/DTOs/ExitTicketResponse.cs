@@ -11,8 +11,10 @@ namespace Ticket.Application.DTOs;
 /// </summary>
 public record ExitTicketResponse(
     Guid     Id,
+    string   DisplayId,
     string   VehicleNumber,
     Guid     SlotId,
+    string   SlotNumber,
     DateTime EntryTime,
     DateTime ExitTime,
     double   DurationHours,

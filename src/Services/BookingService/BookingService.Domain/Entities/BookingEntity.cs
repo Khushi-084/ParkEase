@@ -11,6 +11,12 @@ public class BookingEntity
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id { get; set; } = Guid.NewGuid();
 
+    /// <summary>
+    /// User-friendly short ID (e.g. BK-A1B2).
+    /// </summary>
+    [Column("DisplayId")]
+    public string DisplayId { get; set; } = string.Empty;
+
     [Required]
     public Guid SlotId { get; set; }
 

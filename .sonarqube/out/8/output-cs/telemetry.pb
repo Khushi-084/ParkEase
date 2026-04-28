@@ -1,0 +1,1 @@
+cRVD:\ParkEase\src\Services\PaymentService\Payment.Application\Payment.Application.csprojòCSharp12

@@ -1,0 +1,6 @@
+projectKey=ParkEase
+serverUrl=http://localhost:9050
+serverVersion=26.4.0.121862
+dashboardUrl=http://localhost:9050/dashboard?id=ParkEase
+ceTaskId=0877e327-6ca2-416c-95d0-039e3c7f9217
+ceTaskUrl=http://localhost:9050/api/ce/task?id=0877e327-6ca2-416c-95d0-039e3c7f9217

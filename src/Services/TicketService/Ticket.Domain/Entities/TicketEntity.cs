@@ -19,6 +19,12 @@ public class TicketEntity
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
+    /// User-friendly short ID for the ticket (e.g. PK-7A2B).
+    /// </summary>
+    [Column("DisplayId")]
+    public string DisplayId { get; set; } = string.Empty;
+
+    /// <summary>
     /// Vehicle registration number in Indian format e.g. MH12AB1234.
     /// Always stored in UPPERCASE.
     /// </summary>
@@ -38,6 +44,12 @@ public class TicketEntity
     [Required(ErrorMessage = "SlotId is required.")]
     [Column("SlotId")]
     public Guid SlotId { get; set; }
+
+    /// <summary>
+    /// User-friendly slot number (e.g. A-01). Cached for display.
+    /// </summary>
+    [Column("SlotNumber")]
+    public string SlotNumber { get; set; } = string.Empty;
 
     /// <summary>
     /// UTC timestamp at which the vehicle entered the parking lot.

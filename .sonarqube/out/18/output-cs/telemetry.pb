@@ -1,0 +1,1 @@
+JR=D:\ParkEase\src\Services\AuthService\Auth.API\Auth.API.csprojòCSharp12

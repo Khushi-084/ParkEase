@@ -16,10 +16,18 @@ var connStr = builder.Configuration.GetConnectionString("Default")!;
 builder.Services.AddDbContext<PaymentDbContext>(opt => opt.UseNpgsql(connStr));
 
 // ── Repositories & Services ───────────────────────────────────────────────────
-builder.Services.AddScoped<IPaymentRepository,      PaymentRepository>();
-builder.Services.AddScoped<IPaymentService,         PaymentService>();
-builder.Services.AddScoped<IRazorpayService,        RazorpayService>();
-builder.Services.AddSingleton<IPaymentEventPublisher, RabbitMqPaymentEventPublisher>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IRazorpayService, RazorpayService>();
+
+if (builder.Configuration.GetValue("RabbitMQ:Enabled", true))
+{
+    builder.Services.AddSingleton<IPaymentEventPublisher, RabbitMqPaymentEventPublisher>();
+}
+else
+{
+    builder.Services.AddSingleton<IPaymentEventPublisher, NoOpPaymentEventPublisher>();
+}
 
 builder.Services.AddHttpClient();
 

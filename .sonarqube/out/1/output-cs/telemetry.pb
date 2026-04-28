@@ -1,0 +1,1 @@
+PRCD:\ParkEase\src\Services\AuthService\Auth.Domain\Auth.Domain.csprojòCSharp12

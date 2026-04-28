@@ -3,14 +3,13 @@ using System.Text.Json.Serialization;
  
 namespace BookingService.Application.DTOs;
 
-
-
 /// <summary>
 /// Returned after initiating a booking. Contains Razorpay order details
 /// the client needs to open the checkout widget.
 /// </summary>
 public record CreateBookingResponse(
     Guid    BookingId,
+    string  DisplayId,
     Guid    SlotId,
     Guid    UserId,
     decimal Amount,
@@ -21,4 +20,3 @@ public record CreateBookingResponse(
     Guid    CorrelationId,
     DateTime CreatedAt
 );
- 

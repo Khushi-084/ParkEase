@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
+  <ProjectName>BookingService.API</ProjectName>
+  <ProjectLanguage>C#</ProjectLanguage>
+  <ProjectType>Product</ProjectType>
+  <ProjectGuid>94520100-2aa6-4a11-a4bc-a2b408df52cc</ProjectGuid>
+  <FullPath>D:\ParkEase\src\Services\BookingService\BookingService.API\BookingService.API.csproj</FullPath>
+  <IsExcluded>false</IsExcluded>
+  <AnalysisResultFiles>
+    <AnalysisResultFile Id="FilesToAnalyze" Location="D:\ParkEase\.sonarqube\conf\19\FilesToAnalyze.txt" />
+  </AnalysisResultFiles>
+  <AnalysisSettings>
+    <Property Name="sonar.cs.roslyn.reportFilePaths">D:\ParkEase\.sonarqube\out\19\Issues.json</Property>
+    <Property Name="sonar.cs.analyzer.projectOutPaths">D:\ParkEase\.sonarqube\out\19</Property>
+    <Property Name="sonar.cs.scanner.telemetry">D:\ParkEase\.sonarqube\out\19\Telemetry.json</Property>
+  </AnalysisSettings>
+  <Configuration>Debug</Configuration>
+  <Platform>AnyCPU</Platform>
+  <TargetFramework>net8.0</TargetFramework>
+</ProjectInfo>

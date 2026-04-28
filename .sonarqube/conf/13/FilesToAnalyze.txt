@@ -1,0 +1,8 @@
+﻿D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\ExternalServices\SlotServiceClient.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\ExternalServices\TicketServiceClient.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\Migrations\20260419141316_AddUniqueLotNameCityIndex.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\Migrations\20260419141316_AddUniqueLotNameCityIndex.Designer.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\Migrations\ParkingLotDbContextModelSnapshot.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\Persistence\ParkingLotDbContext.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\Repositories\ParkingLotRepository.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Infrastructure\Services\ParkingLotService.cs

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using ParkingLot.API.Middleware;
 using Microsoft.EntityFrameworkCore;
@@ -22,8 +22,15 @@ builder.Services.AddHttpClient("TicketService", client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
+builder.Services.AddHttpClient("SlotService", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["SlotService:BaseUrl"]!);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
 builder.Services.AddScoped<IParkingLotRepository, ParkingLotRepository>();
-builder.Services.AddScoped<ITicketServiceClient,  TicketServiceClient>(); // FIXED
+builder.Services.AddScoped<ITicketServiceClient,  TicketServiceClient>();
+builder.Services.AddScoped<ISlotServiceClient,    SlotServiceClient>();
 builder.Services.AddScoped<IParkingLotService,    ParkingLotService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

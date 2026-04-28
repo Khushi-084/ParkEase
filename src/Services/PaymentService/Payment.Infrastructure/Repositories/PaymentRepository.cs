@@ -55,6 +55,12 @@ public class PaymentRepository(PaymentDbContext db) : IPaymentRepository
             .OrderByDescending(p => p.CreatedAt)
             .FirstOrDefaultAsync();
 
+    public async Task<RazorpayOrderEntity?> GetRazorpayOrderByBookingIdAsync(Guid bookingId) =>
+        await db.RazorpayOrders
+            .Where(o => o.BookingId == bookingId)
+            .OrderByDescending(o => o.CreatedAt)
+            .FirstOrDefaultAsync();
+
     // ── Walk-in flow (TicketId) ───────────────────────────────────────────────
 
     public async Task<PaymentEntity?> GetActiveByTicketIdAsync(Guid ticketId) =>

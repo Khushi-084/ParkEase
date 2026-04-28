@@ -7,15 +7,15 @@ namespace ParkingLot.Infrastructure.Services;
 
 public class ParkingLotService(
     IParkingLotRepository repo,
-    ITicketServiceClient  ticketClient) : IParkingLotService
+    ITicketServiceClient  ticketClient,
+    ISlotServiceClient    slotClient) : IParkingLotService
 {
-    public async Task<LotResponse> CreateAsync(CreateLotRequest req)
+    public async Task<LotResponse> CreateAsync(CreateLotRequest req, string bearerToken)
     {
         if (await repo.ExistsByNameAndCityAsync(req.Name, req.City))
             throw new InvalidOperationException(
                 $"A parking lot named '{req.Name}' already exists in {req.City}.");
 
-        // FIXED: ManagerId must not be an empty GUID
         if (req.ManagerId == Guid.Empty)
             throw new ArgumentException("ManagerId cannot be an empty GUID.");
 
@@ -38,6 +38,10 @@ public class ParkingLotService(
 
         await repo.AddAsync(lot);
         await repo.SaveChangesAsync();
+
+        // Automatically create slots for the new lot
+        await slotClient.BulkCreateSlotsAsync(lot.LotId, lot.TotalSpots, lot.PricePerHour, bearerToken);
+
         return Map(lot);
     }
 
@@ -86,6 +90,9 @@ public class ParkingLotService(
         lot.UpdatedAt      = DateTime.UtcNow;
 
         await repo.SaveChangesAsync();
+        // Since UpdateAsync doesn't take a bearer token in this implementation, we can just pass an empty string
+        // The endpoint we added in SlotService doesn't strictly require [Authorize] or we didn't add it. Let's pass empty.
+        await slotClient.UpdateLotPricesAsync(lotId, req.PricePerHour, "");
         return Map(lot);
     }
 

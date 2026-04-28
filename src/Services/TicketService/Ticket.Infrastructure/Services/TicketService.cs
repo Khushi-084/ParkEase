@@ -11,9 +11,9 @@ public partial class TicketService(
     ISlotServiceClient     slotClient,
     IPaymentServiceClient  paymentClient) : ITicketService
 {
-    private const decimal RatePerHour = 20m;
 
-    [GeneratedRegex(@"^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{4}$", RegexOptions.Compiled)]
+
+    [GeneratedRegex(@"^[A-Z0-9 -]{4,15}$", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
     private static partial Regex VehicleNumberRegex();
 
     // ── Entry Flow ────────────────────────────────────────────────────────────
@@ -31,8 +31,10 @@ public partial class TicketService(
 
         var ticket = new TicketEntity
         {
+            DisplayId     = $"PK-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}",
             VehicleNumber = vehicleNumber,
             SlotId        = slot.SlotId,
+            SlotNumber    = slot.SlotNumber,
             EntryTime     = DateTime.UtcNow,
             Status        = TicketStatus.Active,
             Amount        = 0
@@ -44,20 +46,33 @@ public partial class TicketService(
 
     // ── Exit Flow ─────────────────────────────────────────────────────────────
 
-    public async Task<ExitTicketResponse> ExitTicketAsync(Guid ticketId, string paymentMode)
+    public async Task<ExitTicketResponse> ExitTicketAsync(string ticketIdOrDisplayId, string paymentMode)
     {
-        var ticket = await ticketRepository.GetByIdAsync(ticketId)
-                     ?? throw new KeyNotFoundException($"Ticket '{ticketId}' not found.");
+        TicketEntity? ticket = null;
+        if (Guid.TryParse(ticketIdOrDisplayId, out var ticketGuid))
+        {
+            ticket = await ticketRepository.GetByIdAsync(ticketGuid);
+        }
+
+        if (ticket == null)
+        {
+            ticket = await ticketRepository.GetByDisplayIdAsync(ticketIdOrDisplayId.ToUpperInvariant());
+        }
+
+        if (ticket == null)
+            throw new KeyNotFoundException($"Ticket '{ticketIdOrDisplayId}' not found.");
 
         if (ticket.Status == TicketStatus.Completed)
             throw new InvalidOperationException(
-                $"Ticket '{ticketId}' has already been completed. Double-exit is not allowed.");
+                $"Ticket '{ticketIdOrDisplayId}' has already been completed. Double-exit is not allowed.");
 
         // Step 1: Calculate billing
         var exitTime    = DateTime.UtcNow;
         var rawHours    = (exitTime - ticket.EntryTime).TotalHours;
         var billedHours = Math.Ceiling(rawHours);
-        var amount      = (decimal)billedHours * RatePerHour;
+        // Fetch the slot to get the correct dynamic pricing
+        var slot = await slotClient.GetSlotByIdAsync(ticket.SlotId);
+        var amount      = (decimal)billedHours * slot.PricePerHour;
 
         // Step 2: Release slot
         await slotClient.MarkSlotAvailableAsync(ticket.SlotId);
@@ -79,8 +94,10 @@ public partial class TicketService(
 
         return new ExitTicketResponse(
             Id:              updated.Id,
+            DisplayId:       updated.DisplayId,
             VehicleNumber:   updated.VehicleNumber,
             SlotId:          updated.SlotId,
+            SlotNumber:      updated.SlotNumber,
             EntryTime:       updated.EntryTime,
             ExitTime:        updated.ExitTime!.Value,
             DurationHours:   billedHours,
@@ -114,8 +131,10 @@ public partial class TicketService(
 
     private static TicketResponse MapToTicketResponse(TicketEntity t) => new(
         Id:            t.Id,
+        DisplayId:     t.DisplayId,
         VehicleNumber: t.VehicleNumber,
         SlotId:        t.SlotId,
+        SlotNumber:    t.SlotNumber,
         EntryTime:     t.EntryTime,
         ExitTime:      t.ExitTime,
         Status:        t.Status.ToString(),

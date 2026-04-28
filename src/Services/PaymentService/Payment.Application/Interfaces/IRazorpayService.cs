@@ -22,4 +22,10 @@ public interface IRazorpayService
     /// Verify a client-side payment signature (called after Razorpay checkout completes).
     /// </summary>
     bool VerifySignature(string orderId, string paymentId, string signature);
-}
+
+    /// <summary>
+    /// Verifies the signature from the client and immediately triggers PaymentSucceeded.
+    /// This is used as a fallback or alternative to webhooks for frontend client verification.
+    /// </summary>
+    Task<bool> VerifyAndConfirmOrderAsync(VerifyRazorpayPaymentRequest request);
+}

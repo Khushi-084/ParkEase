@@ -17,7 +17,7 @@ public class SlotServiceClient(
         {
             var request = new HttpRequestMessage(
                 HttpMethod.Post,
-                $"/api/slots/{slotId}/reserve");
+                $"/api/v1/slots/{slotId}/reserve");
             request.Headers.Add("X-Correlation-Id", correlationId.ToString());
 
             var response = await httpClient.SendAsync(request);
@@ -43,7 +43,7 @@ public class SlotServiceClient(
         {
             var request = new HttpRequestMessage(
                 HttpMethod.Post,
-                $"/api/slots/{slotId}/confirm");
+                $"/api/v1/slots/{slotId}/confirm");
             request.Headers.Add("X-Correlation-Id", correlationId.ToString());
 
             var response = await httpClient.SendAsync(request);
@@ -69,7 +69,7 @@ public class SlotServiceClient(
         {
             var request = new HttpRequestMessage(
                 HttpMethod.Post,
-                $"/api/slots/{slotId}/release");
+                $"/api/v1/slots/{slotId}/release");
             request.Headers.Add("X-Correlation-Id", correlationId.ToString());
 
             var response = await httpClient.SendAsync(request);

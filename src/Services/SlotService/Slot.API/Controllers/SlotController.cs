@@ -5,9 +5,9 @@ using Slot.Application.Interfaces;
 
 namespace Slot.API.Controllers;
 
-[Authorize]
+[AllowAnonymous]
 [ApiController]
-[Route("api/slots")]
+[Route("api/v1/slots")]
 [Produces("application/json")]
 public class SlotController(ISlotService slotService) : ControllerBase
 {
@@ -63,6 +63,16 @@ public class SlotController(ISlotService slotService) : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<SlotResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetSlotsByLot(Guid lotId)
         => Ok(await slotService.GetByLotIdAsync(lotId));
+
+    // ── NEW: PUT /api/slots/lot/{lotId}/price ────────────────────────────────
+
+    [HttpPut("lot/{lotId:guid}/price")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdatePricesByLot(Guid lotId, [FromBody] decimal newPrice)
+    {
+        await slotService.UpdatePricesByLotAsync(lotId, newPrice);
+        return Ok(new { message = "Prices updated successfully." });
+    }
 
     // ── Existing: GET /api/slots/lot/{lotId}/availability ────────────────────
 

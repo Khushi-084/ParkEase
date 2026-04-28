@@ -19,7 +19,7 @@ public record CreateBookingRequest
     [JsonPropertyName("userId")]
     public Guid UserId { get; init; }
  
-    /// <summary>Amount in INR paise (e.g. 50000 = ₹500.00).</summary>
+    /// <summary>Amount in INR Rupees.</summary>
     [Required]
     [Range(1, int.MaxValue, ErrorMessage = "Amount must be greater than 0.")]
     [JsonPropertyName("amount")]

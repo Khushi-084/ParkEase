@@ -11,4 +11,7 @@ public record UpdatePaymentStatusRequest
         ErrorMessage = "Status must be Pending, Success, Failed, or Refunded.")]
     [JsonPropertyName("status")]
     public string Status { get; init; } = string.Empty;
+
+    [JsonPropertyName("transactionId")]
+    public string? TransactionId { get; init; }
 }

@@ -1,0 +1,9 @@
+﻿D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\DTOs\CreateLotRequest.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\DTOs\LotResponse.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\DTOs\LotStatusUpdateRequest.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\DTOs\PagedResponse.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\DTOs\UpdateLotRequest.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\Interfaces\IParkingLotRepository.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\Interfaces\IParkingLotService.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\Interfaces\ISlotServiceClient.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Application\Interfaces\ITicketServiceClient.cs

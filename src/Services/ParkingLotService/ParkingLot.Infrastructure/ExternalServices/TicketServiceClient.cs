@@ -21,8 +21,8 @@ public class TicketServiceClient(IHttpClientFactory httpClientFactory) : ITicket
 
         try
         {
-            // GET /api/ticket/lot/{lotId}/active-count  →  { count: N }
-            var response = await client.GetAsync($"api/ticket/lot/{lotId}/active-count");
+            // GET /api/v1/ticket/lot/{lotId}/active-count  →  { count: N }
+            var response = await client.GetAsync($"api/v1/ticket/lot/{lotId}/active-count");
 
             if (!response.IsSuccessStatusCode)
                 return false; // TicketService unreachable — fail-open

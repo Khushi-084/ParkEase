@@ -1,0 +1,12 @@
+﻿D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\CreateTicketRequest.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\ExitTicketRequest.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\ExitTicketResponse.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\InitiateTicketPaymentRequest.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\PaymentInitResponse.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\SlotDTO.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\SlotStatusUpdateDTO.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\DTOs\TicketResponse.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\Interfaces\IPaymentServiceClient.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\Interfaces\ISlotServiceClient.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\Interfaces\ITicketRepository.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Application\Interfaces\ITicketService.cs

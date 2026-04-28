@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Payment.Application.DTOs;
 using Payment.Application.Interfaces;
 using Payment.Domain.Entities;
+using Payment.Domain.Enums;
 using Payment.Infrastructure.Messaging;
 using Payment.Infrastructure.Persistence;
 
@@ -174,6 +175,72 @@ public class RazorpayService(
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
         var expected = BitConverter.ToString(hash).Replace("-", "").ToLower();
         return expected == signature;
+    }
+
+    public async Task<bool> VerifyAndConfirmOrderAsync(VerifyRazorpayPaymentRequest request)
+    {
+        if (!VerifySignature(request.RazorpayOrderId, request.RazorpayPaymentId, request.RazorpaySignature))
+        {
+            logger.LogWarning("[Razorpay] Client-side signature verification failed for order {OrderId}", request.RazorpayOrderId);
+            return false;
+        }
+
+        var order = await db.RazorpayOrders
+            .FirstOrDefaultAsync(o => o.RazorpayOrderId == request.RazorpayOrderId);
+
+        if (order is null)
+        {
+            logger.LogWarning("[Razorpay] No order record found for verified Razorpay order {OrderId}", request.RazorpayOrderId);
+            return false;
+        }
+
+        if (order.Status == "paid" || order.WebhookProcessed)
+        {
+            logger.LogInformation("[Razorpay] Order {OrderId} already marked as paid", request.RazorpayOrderId);
+            return true;
+        }
+
+        order.Status = "paid";
+        // Do not set WebhookProcessed = true here, let the webhook do it if it arrives later.
+        order.UpdatedAt = DateTime.UtcNow;
+
+        // Also update PaymentEntity if it exists (links via CorrelationId which is the PaymentId)
+        var payment = await db.Payments.FirstOrDefaultAsync(p => p.PaymentId == order.CorrelationId);
+        if (payment != null && payment.Status == PaymentStatus.Pending)
+        {
+            payment.Status = PaymentStatus.Success;
+            payment.TransactionId = request.RazorpayPaymentId;
+            logger.LogInformation("[Razorpay] Associated Payment record {PaymentId} marked as Success", payment.PaymentId);
+        }
+
+        await db.SaveChangesAsync();
+
+        try 
+        {
+            await publisher.PublishPaymentSucceededAsync(order.CorrelationId, request.RazorpayPaymentId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "[Razorpay] Failed to publish PaymentSucceeded via RabbitMQ. Relying exclusively on HTTP fallback.");
+        }
+
+        // Fallback: direct HTTP call to BookingService to ensure status updates immediately even if RabbitMQ is down
+        try
+        {
+            using var client = new HttpClient();
+            var bookingServiceUrl = config["Services:BookingService"] ?? "http://localhost:5204";
+            await client.PostAsync($"{bookingServiceUrl}/api/v1/bookings/internal/confirm/{order.CorrelationId}", null);
+            logger.LogInformation("[Razorpay] Direct HTTP confirmation fallback succeeded for correlationId {CorrelationId} at {Url}", 
+                order.CorrelationId, bookingServiceUrl);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "[Razorpay] Failed to send direct confirmation fallback to BookingService.");
+        }
+        
+        logger.LogInformation("[Razorpay] Client-side verification succeeded for correlationId {CorrelationId}", order.CorrelationId);
+
+        return true;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
