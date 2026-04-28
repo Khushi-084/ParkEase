@@ -1,0 +1,2 @@
+﻿D:\ParkEase\src\Services\AuthService\Auth.Domain\Entities\User.cs
+D:\ParkEase\src\Services\AuthService\Auth.Domain\Enums\UserRole.cs

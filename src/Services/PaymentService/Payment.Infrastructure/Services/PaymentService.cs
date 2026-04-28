@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Payment.Application.DTOs;
 using Payment.Application.Interfaces;
 using Payment.Domain.Entities;
@@ -7,7 +8,8 @@ namespace Payment.Infrastructure.Services;
 
 public class PaymentService(
     IPaymentRepository paymentRepository,
-    IRazorpayService   razorpayService) : IPaymentService
+    IRazorpayService   razorpayService,
+    IConfiguration     configuration) : IPaymentService
 {
     // ── Create ────────────────────────────────────────────────────────────────
 
@@ -59,7 +61,7 @@ public class PaymentService(
         if (mode == PaymentMode.Cash)
         {
             payment.Status        = PaymentStatus.Success;
-            payment.TransactionId = $"CASH-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N[..6]}";
+            payment.TransactionId = $"CASH-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}";
 
             var saved = await paymentRepository.AddAsync(payment);
             return MapToResponse(saved, razorpayOrderId: null);
@@ -118,6 +120,9 @@ public class PaymentService(
 
         payment.Status = newStatus;
 
+        if (!string.IsNullOrEmpty(request.TransactionId))
+            payment.TransactionId = request.TransactionId;
+
         var updated = await paymentRepository.UpdateAsync(payment);
         return MapToResponse(updated, razorpayOrderId: null);
     }
@@ -136,14 +141,30 @@ public class PaymentService(
 
     public async Task<PaymentResponse> GetByBookingIdAsync(Guid bookingId)
     {
-        var payment = await paymentRepository.GetByBookingIdAsync(bookingId)
-                      ?? throw new KeyNotFoundException(
-                          $"No payment found for booking '{bookingId}'.");
+        var payment = await paymentRepository.GetByBookingIdAsync(bookingId);
+        if (payment is not null)
+        {
+            return MapToResponse(payment, razorpayOrderId: null);
+        }
 
-        return MapToResponse(payment, razorpayOrderId: null);
+        // BookingService uses RazorpayOrders directly without a PaymentEntity
+        var razorpayOrder = await paymentRepository.GetRazorpayOrderByBookingIdAsync(bookingId)
+            ?? throw new KeyNotFoundException($"No payment found for booking '{bookingId}'.");
+
+        return new PaymentResponse(
+            PaymentId:       razorpayOrder.CorrelationId, // The correlation ID acts as the payment ID here
+            BookingId:       razorpayOrder.BookingId,
+            TicketId:        null,
+            Amount:          razorpayOrder.AmountInPaise / 100m, // Convert back to Rupees
+            Mode:            "Online", // Assuming Razorpay is always online
+            TransactionId:   null,
+            Status:          razorpayOrder.Status == "paid" ? PaymentStatus.Success.ToString() : PaymentStatus.Pending.ToString(),
+            CreatedAt:       razorpayOrder.CreatedAt,
+            RefundedAt:      null,
+            RazorpayOrderId: razorpayOrder.RazorpayOrderId,
+            RazorpayKeyId:   configuration["Razorpay:KeyId"]
+        );
     }
-
-    // ── Get by TicketId ───────────────────────────────────────────────────────
 
     public async Task<PaymentResponse> GetByTicketIdAsync(Guid ticketId)
     {
@@ -174,7 +195,7 @@ public class PaymentService(
 
     // ── Helper ────────────────────────────────────────────────────────────────
 
-    private static PaymentResponse MapToResponse(PaymentEntity p, string? razorpayOrderId) => new(
+    private PaymentResponse MapToResponse(PaymentEntity p, string? razorpayOrderId) => new(
         PaymentId:       p.PaymentId,
         BookingId:       p.BookingId,
         TicketId:        p.TicketId,
@@ -184,6 +205,7 @@ public class PaymentService(
         Status:          p.Status.ToString(),
         CreatedAt:       p.CreatedAt,
         RefundedAt:      p.RefundedAt,
-        RazorpayOrderId: razorpayOrderId
+        RazorpayOrderId: razorpayOrderId,
+        RazorpayKeyId:   configuration["Razorpay:KeyId"]
     );
 }

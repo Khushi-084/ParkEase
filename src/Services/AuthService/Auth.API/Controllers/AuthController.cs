@@ -57,9 +57,16 @@ public class AuthController(IAuthService authService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetProfile()
     {
-        var userId = GetCurrentUserId();
-        var result = await authService.GetProfileAsync(userId);
-        return Ok(result);
+        try
+        {
+            var userId = GetCurrentUserId();
+            var result = await authService.GetProfileAsync(userId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return Unauthorized(new { error = ex.Message });
+        }
     }
 
     // ── PUT /api/v1/auth/profile ────────────────────────────────────────────

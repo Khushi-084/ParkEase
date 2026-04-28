@@ -3,10 +3,9 @@ using System.Text.Json.Serialization;
  
 namespace BookingService.Application.DTOs;
 
-
-
 public record BookingResponse(
     Guid     Id,
+    string   DisplayId,
     Guid     SlotId,
     Guid     UserId,
     decimal  Amount,

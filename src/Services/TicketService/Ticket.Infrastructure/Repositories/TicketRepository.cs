@@ -18,6 +18,9 @@ public class TicketRepository(TicketDbContext db) : ITicketRepository
     public async Task<TicketEntity?> GetByIdAsync(Guid id) =>
         await db.Tickets.FirstOrDefaultAsync(t => t.Id == id);
 
+    public async Task<TicketEntity?> GetByDisplayIdAsync(string displayId) =>
+        await db.Tickets.FirstOrDefaultAsync(t => t.DisplayId == displayId);
+
     public async Task<TicketEntity> UpdateAsync(TicketEntity ticket)
     {
         db.Tickets.Update(ticket);

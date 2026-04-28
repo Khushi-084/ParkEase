@@ -32,6 +32,11 @@ namespace Ticket.Infrastructure.Migrations
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("Amount");
 
+                    b.Property<string>("DisplayId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("DisplayId");
+
                     b.Property<DateTime>("EntryTime")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("EntryTime");
@@ -43,6 +48,11 @@ namespace Ticket.Infrastructure.Migrations
                     b.Property<Guid>("SlotId")
                         .HasColumnType("uuid")
                         .HasColumnName("SlotId");
+
+                    b.Property<string>("SlotNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("SlotNumber");
 
                     b.Property<string>("Status")
                         .IsRequired()

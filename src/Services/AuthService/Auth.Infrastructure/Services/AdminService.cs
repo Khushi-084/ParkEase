@@ -5,7 +5,9 @@ using Auth.Domain.Enums;
 
 namespace Auth.Infrastructure.Services;
 
-public class AdminService(IUserRepository userRepo) : IAdminService
+public class AdminService(
+    IUserRepository userRepo,
+    IAuthEventPublisher eventPublisher) : IAdminService
 {
     public async Task<IEnumerable<UserProfileResponse>> GetAllUsersAsync(string? role, bool? active)
     {
@@ -48,6 +50,9 @@ public class AdminService(IUserRepository userRepo) : IAdminService
 
         user.IsApproved = true;
         await userRepo.SaveChangesAsync();
+
+        await eventPublisher.PublishLotManagerApprovedAsync(user.UserId, user.Email, user.FullName);
+
         return MapToProfile(user);
     }
 

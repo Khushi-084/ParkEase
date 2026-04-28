@@ -1,0 +1,1 @@
+ZRMD:\ParkEase\src\Services\AuthService\Auth.Application\Auth.Application.csprojòCSharp12

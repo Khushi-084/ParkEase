@@ -147,6 +147,17 @@ public class SlotService(ISlotRepository repo) : ISlotService
         return Map(slot);
     }
 
+    public async Task UpdatePricesByLotAsync(Guid lotId, decimal newPrice)
+    {
+        var slots = await repo.GetByLotIdAsync(lotId);
+        foreach (var slot in slots)
+        {
+            slot.PricePerHour = newPrice;
+            slot.UpdatedAt    = DateTime.UtcNow;
+        }
+        await repo.SaveChangesAsync();
+    }
+
     public async Task DeleteAsync(Guid slotId)
     {
         var slot = await repo.GetByIdAsync(slotId)

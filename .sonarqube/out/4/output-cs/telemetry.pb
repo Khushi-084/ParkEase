@@ -1,0 +1,1 @@
+YRLD:\ParkEase\src\Services\PaymentService\Payment.Domain\Payment.Domain.csprojòCSharp12

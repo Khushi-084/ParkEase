@@ -22,6 +22,9 @@ public interface IPaymentRepository
     /// </summary>
     Task<PaymentEntity?> GetByBookingIdAsync(Guid bookingId);
 
+    // ── RazorpayOrders ────────────────────────────────────────────────────────
+    Task<RazorpayOrderEntity?> GetRazorpayOrderByBookingIdAsync(Guid bookingId);
+
     // ── Walk-in flow (TicketId) ───────────────────────────────────────────────
 
     /// <summary>

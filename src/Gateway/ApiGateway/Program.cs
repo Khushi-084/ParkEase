@@ -6,6 +6,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Serilog
 builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration));
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("GatewayCorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 // Add Reverse Proxy
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -25,6 +37,7 @@ if (app.Environment.IsDevelopment())
 
 // Middleware pipeline
 app.UseSerilogRequestLogging();
+app.UseCors("GatewayCorsPolicy");
 app.UseMiddleware<ExceptionMiddleware>();
 app.MapReverseProxy();
 

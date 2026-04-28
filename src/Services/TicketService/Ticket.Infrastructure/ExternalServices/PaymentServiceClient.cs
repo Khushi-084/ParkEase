@@ -8,7 +8,6 @@ namespace Ticket.Infrastructure.ExternalServices;
 
 /// <summary>
 /// HTTP client that calls PaymentService after a vehicle exits.
-/// Uses Docker service name "payment-service" as the base URL (configured in appsettings).
 /// </summary>
 public class PaymentServiceClient(
     IHttpClientFactory httpClientFactory) : IPaymentServiceClient
@@ -22,7 +21,7 @@ public class PaymentServiceClient(
 
     public async Task<PaymentInitResponse> CreatePaymentAsync(InitiateTicketPaymentRequest request)
     {
-        // Map to the shape PaymentService's POST /api/payment expects
+        // Map to the shape PaymentService's POST /api/v1/payment expects
         var body = new
         {
             ticketId = request.TicketId,
@@ -35,7 +34,8 @@ public class PaymentServiceClient(
             Encoding.UTF8,
             "application/json");
 
-        var response = await Client.PostAsync("/api/payment", content);
+        // FIXED: removed leading '/' — with leading slash, HttpClient ignores BaseAddress path
+        var response = await Client.PostAsync("api/v1/payment", content);
 
         if (!response.IsSuccessStatusCode)
         {

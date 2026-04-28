@@ -1,0 +1,1 @@
+fRYD:\ParkEase\src\Services\TicketService\Ticket.Infrastructure\Ticket.Infrastructure.csprojòCSharp12

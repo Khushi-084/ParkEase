@@ -7,9 +7,11 @@ namespace Payment.API.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/payment")]
+[Route("api/v1/payment")]
 [Produces("application/json")]
-public class PaymentController(IPaymentService paymentService) : ControllerBase
+public class PaymentController(
+    IPaymentService paymentService,
+    IRazorpayService razorpayService) : ControllerBase
 {
     // ── GET /api/payment/{paymentId} ──────────────────────────────────────────
 
@@ -79,6 +81,40 @@ public class PaymentController(IPaymentService paymentService) : ControllerBase
         }
         catch (ArgumentException ex)         { return BadRequest(new { error = ex.Message }); }
         catch (InvalidOperationException ex) { return Conflict(new { error = ex.Message }); }
+    }
+
+    [AllowAnonymous]
+    [HttpPost("order")]
+    [ProducesResponseType(typeof(RazorpayOrderResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateRazorpayOrder([FromBody] CreateRazorpayOrderRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            var order = await razorpayService.CreateOrderAsync(request);
+            return Ok(order);
+        }
+        catch (ArgumentException ex)         { return BadRequest(new { error = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { error = ex.Message }); }
+    }
+
+    [AllowAnonymous]
+    [HttpPost("order/verify")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> VerifyRazorpayOrder([FromBody] VerifyRazorpayPaymentRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var verified = await razorpayService.VerifyAndConfirmOrderAsync(request);
+        if (!verified)
+            return BadRequest(new { error = "Invalid payment signature." });
+
+        return Ok(new { message = "Payment verified successfully." });
     }
 
     // ── PATCH /api/payment/{paymentId}/status ─────────────────────────────────

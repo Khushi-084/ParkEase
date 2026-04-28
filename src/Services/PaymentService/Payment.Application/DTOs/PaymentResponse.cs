@@ -17,5 +17,6 @@ public record PaymentResponse(
     string    Status,
     DateTime  CreatedAt,
     DateTime? RefundedAt,
-    string?   RazorpayOrderId   // only set for Card/UPI/Wallet — frontend uses this to open Razorpay checkout
+    string?   RazorpayOrderId,
+    string?   RazorpayKeyId
 );

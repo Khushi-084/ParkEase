@@ -1,0 +1,11 @@
+﻿D:\ParkEase\src\Services\AuthService\Auth.Application\DTOs\AuthResponse.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\DTOs\ChangePasswordRequest.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\DTOs\ChangesUserRoleRequest.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\DTOs\LoginRequest.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\DTOs\RegisterRequest.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\DTOs\UpdateProfileRequest.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\DTOs\UserProfileResponse.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\Interfaces\IAdminService.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\Interfaces\IAuthEventPublisher.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\Interfaces\IAuthService.cs
+D:\ParkEase\src\Services\AuthService\Auth.Application\Interfaces\IUserRepository.cs

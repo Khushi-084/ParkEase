@@ -7,7 +7,7 @@ namespace BookingService.API.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/bookings")]
+[Route("api/v1/bookings")]
 [Produces("application/json")]
 public class BookingController(IBookingService bookingService) : ControllerBase
 {
@@ -49,4 +49,22 @@ public class BookingController(IBookingService bookingService) : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<BookingResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserBookings(Guid userId)
         => Ok(await bookingService.GetByUserIdAsync(userId));
+
+    /// <summary>
+    /// Internal endpoint to confirm a booking directly. Used as a fallback if RabbitMQ is down.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("internal/confirm/{correlationId:guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> InternalConfirmBooking(Guid correlationId)
+    {
+        try
+        {
+            await bookingService.ConfirmBookingAsync(correlationId, "direct-fallback");
+            return Ok(new { message = "Booking confirmed via internal fallback." });
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+    }
 }
+

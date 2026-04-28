@@ -17,7 +17,7 @@ public interface ITicketService
     /// frontend knows whether to open Razorpay checkout (online modes)
     /// or just show a success screen (Cash).
     /// </summary>
-    Task<ExitTicketResponse> ExitTicketAsync(Guid ticketId, string paymentMode);
+    Task<ExitTicketResponse> ExitTicketAsync(string ticketIdOrDisplayId, string paymentMode);
 
     Task<TicketResponse>     GetByIdAsync(Guid ticketId);
     Task<int>                GetActiveCountByLotAsync(Guid lotId);

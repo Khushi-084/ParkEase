@@ -38,6 +38,11 @@ namespace BookingService.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("DisplayId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("DisplayId");
+
                     b.Property<string>("RazorpayOrderId")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");

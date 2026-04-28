@@ -19,6 +19,8 @@ public class BookingService(
     IBookingRepository   bookingRepo,
     ISlotServiceClient   slotClient,
     IPaymentServiceClient paymentClient,
+    IAuthServiceClient    authClient,
+    IBookingEventPublisher eventPublisher,
     ILogger<BookingService> logger) : IBookingService
 {
     // ── Create booking (saga step 1-3) ────────────────────────────────────────
@@ -42,6 +44,7 @@ public class BookingService(
         // Step 2: Create PENDING booking
         var booking = new BookingEntity
         {
+            DisplayId     = $"BK-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}",
             SlotId        = request.SlotId,
             UserId        = request.UserId,
             Amount        = request.Amount,
@@ -90,6 +93,7 @@ public class BookingService(
 
         return new CreateBookingResponse(
             BookingId:       booking.Id,
+            DisplayId:       booking.DisplayId,
             SlotId:          booking.SlotId,
             UserId:          booking.UserId,
             Amount:          booking.Amount,
@@ -143,8 +147,13 @@ public class BookingService(
         booking.UpdatedAt = DateTime.UtcNow;
         await bookingRepo.UpdateAsync(booking);
 
+        var user = await authClient.GetUserDetailsAsync(booking.UserId);
+        await eventPublisher.PublishBookingConfirmedAsync(
+            booking.UserId, user?.Email ?? string.Empty, booking.Id, "ParkEase Lot");
+
         logger.LogInformation(
-            "[Saga:{CorrelationId}] Booking {BookingId} CONFIRMED", correlationId, booking.Id);
+            "[Saga:{CorrelationId}] Booking {BookingId} CONFIRMED (Source: {Source})", 
+            correlationId, booking.Id, razorpayPaymentId);
     }
 
     public async Task FailBookingAsync(Guid correlationId, string reason)
@@ -179,6 +188,7 @@ public class BookingService(
 
     private static BookingResponse Map(Domain.Entities.BookingEntity b) => new(
         Id:              b.Id,
+        DisplayId:       b.DisplayId,
         SlotId:          b.SlotId,
         UserId:          b.UserId,
         Amount:          b.Amount,

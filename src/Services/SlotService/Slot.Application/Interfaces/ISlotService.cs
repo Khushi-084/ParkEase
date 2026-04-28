@@ -13,6 +13,7 @@ public interface ISlotService
     Task<SlotResponse>              UpdateAsync(Guid slotId, UpdateSlotRequest req);
     Task<SlotResponse>              UpdateStatusAsync(Guid slotId, SlotStatusUpdateRequest req);
     Task<SlotResponse>              GetFirstAvailableAsync(string? type = null);
+    Task                            UpdatePricesByLotAsync(Guid lotId, decimal newPrice);
     Task                            DeleteAsync(Guid slotId);
 
     // ── NEW: Booking Saga operations ──────────────────────────────────────────

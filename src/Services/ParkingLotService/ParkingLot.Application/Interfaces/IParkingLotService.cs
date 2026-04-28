@@ -4,7 +4,7 @@ namespace ParkingLot.Application.Interfaces;
 
 public interface IParkingLotService
 {
-    Task<LotResponse>                CreateAsync(CreateLotRequest request);
+    Task<LotResponse>                CreateAsync(CreateLotRequest request, string bearerToken);
     Task<LotResponse>                GetByIdAsync(Guid lotId);
     Task<PagedResponse<LotResponse>> GetAllAsync(int page, int pageSize, string? city, string? status);
     Task<LotResponse>                UpdateAsync(Guid lotId, UpdateLotRequest request);

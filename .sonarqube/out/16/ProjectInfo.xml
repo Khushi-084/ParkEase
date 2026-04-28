@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
+  <ProjectName>ParkingLot.API</ProjectName>
+  <ProjectLanguage>C#</ProjectLanguage>
+  <ProjectType>Product</ProjectType>
+  <ProjectGuid>fe4f4495-fd84-4985-9504-e936de3e56fd</ProjectGuid>
+  <FullPath>D:\ParkEase\src\Services\ParkingLotService\ParkingLot.API\ParkingLot.API.csproj</FullPath>
+  <IsExcluded>false</IsExcluded>
+  <AnalysisResultFiles>
+    <AnalysisResultFile Id="FilesToAnalyze" Location="D:\ParkEase\.sonarqube\conf\16\FilesToAnalyze.txt" />
+  </AnalysisResultFiles>
+  <AnalysisSettings>
+    <Property Name="sonar.cs.roslyn.reportFilePaths">D:\ParkEase\.sonarqube\out\16\Issues.json</Property>
+    <Property Name="sonar.cs.analyzer.projectOutPaths">D:\ParkEase\.sonarqube\out\16</Property>
+    <Property Name="sonar.cs.scanner.telemetry">D:\ParkEase\.sonarqube\out\16\Telemetry.json</Property>
+  </AnalysisSettings>
+  <Configuration>Debug</Configuration>
+  <Platform>AnyCPU</Platform>
+  <TargetFramework>net8.0</TargetFramework>
+</ProjectInfo>

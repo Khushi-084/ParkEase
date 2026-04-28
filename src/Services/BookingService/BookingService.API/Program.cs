@@ -18,6 +18,7 @@ builder.Services.AddDbContext<BookingDbContext>(opt => opt.UseNpgsql(connStr));
 // ── Repositories & Services ───────────────────────────────────────────────────
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IBookingService,    BookingService.Infrastructure.Services.BookingService>();
+builder.Services.AddSingleton<IBookingEventPublisher, RabbitMqBookingEventPublisher>();
 
 // ── HTTP Clients (inter-service) ──────────────────────────────────────────────
 builder.Services.AddHttpClient<ISlotServiceClient, SlotServiceClient>(c =>
@@ -34,8 +35,18 @@ builder.Services.AddHttpClient<IPaymentServiceClient, PaymentServiceClient>(c =>
     c.Timeout = TimeSpan.FromSeconds(10);
 });
 
+builder.Services.AddHttpClient<IAuthServiceClient, AuthServiceClient>(c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["Services:AuthService"]
+                            ?? "http://auth-service:80");
+    c.Timeout = TimeSpan.FromSeconds(10);
+});
+
 // ── RabbitMQ Consumer (background service) ────────────────────────────────────
-builder.Services.AddHostedService<PaymentEventConsumer>();
+if (builder.Configuration.GetValue("RabbitMQ:Enabled", true))
+{
+    builder.Services.AddHostedService<PaymentEventConsumer>();
+}
 
 // ── JWT ───────────────────────────────────────────────────────────────────────
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

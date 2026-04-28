@@ -1,9 +1,11 @@
-﻿using System.Text;
+using System.Text;
 using Auth.Application.Interfaces;
 using Auth.Infrastructure.Persistence;
 using Auth.Infrastructure.Repositories;
 using Auth.Infrastructure.Seed;
 using Auth.Infrastructure.Services;
+using Auth.Infrastructure.Messaging;
+using Auth.Application.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +20,7 @@ builder.Services.AddDbContext<AuthDbContext>(opt => opt.UseNpgsql(connStr));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService,   Auth.Infrastructure.Services.AuthService>();
 builder.Services.AddScoped<IAdminService,  AdminService>();
+builder.Services.AddSingleton<IAuthEventPublisher, RabbitMqAuthEventPublisher>();
 
 // ── JWT Authentication ──────────────────────────────────────────────────────
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

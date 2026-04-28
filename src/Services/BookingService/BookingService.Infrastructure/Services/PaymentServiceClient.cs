@@ -26,7 +26,7 @@ public class PaymentServiceClient(
 
         logger.LogInformation("Creating Razorpay order for booking {BookingId}", request.BookingId);
 
-        var response = await httpClient.PostAsync("/api/payment/order", content);
+        var response = await httpClient.PostAsync("/api/v1/payment/order", content);
 
         if (!response.IsSuccessStatusCode)
         {
