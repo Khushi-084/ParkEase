@@ -1,0 +1,179 @@
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: parkease_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: parkease_rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    image: parkease/auth-service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.auth
+    container_name: parkease_auth
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5201:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=parkease_auth;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+
+  parkinglot-service:
+    image: parkease/parkinglot-service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.parkinglot
+    container_name: parkease_parkinglot
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5202:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=parkease_parkinglots;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+      - TicketService__BaseUrl=http://ticket-service:8080/
+      - SlotService__BaseUrl=http://slot-service:8080/
+
+  slot-service:
+    image: parkease/slot-service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.slot
+    container_name: parkease_slot
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5203:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=parkease_slots;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+
+  booking-service:
+    image: parkease/booking-service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.booking
+    container_name: parkease_booking
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5204:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=parkease_bookings;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+      - RabbitMQ__Host=rabbitmq
+      - Services__SlotService=http://slot-service:8080/
+      - Services__PaymentService=http://payment-service:8080/
+      - Services__AuthService=http://auth-service:8080/
+
+  ticket-service:
+    image: parkease/ticket-service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ticket
+    container_name: parkease_ticket
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5205:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=parkease_tickets;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+      - SlotService__BaseUrl=http://slot-service:8080/
+      - PaymentService__BaseUrl=http://payment-service:8080/
+
+  payment-service:
+    image: parkease/payment-service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.payment
+    container_name: parkease_payment
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5206:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=parkease_payments;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+      - RabbitMQ__Host=rabbitmq
+      - Services__BookingService=http://booking-service:8080/
+
+  notification-service:
+    image: parkease/notification-service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.notification
+    container_name: parkease_notification
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "5000:8080"
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Port=5432;Database=parkease_notifications;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};
+      - RabbitMQ__Host=rabbitmq
+
+  frontend:
+    image: parkease/frontend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    container_name: parkease_frontend
+    restart: always
+    ports:
+      - "4200:80"
+    depends_on:
+      - auth-service
+      - parkinglot-service
+      - slot-service
+      - booking-service
+      - ticket-service
+      - payment-service
+      - notification-service
+
+volumes:
+  postgres_data:

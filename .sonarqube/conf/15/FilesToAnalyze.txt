@@ -1,0 +1,10 @@
+﻿D:\ParkEase\src\Services\TicketService\Ticket.API\Controllers\TicketController.cs
+D:\ParkEase\src\Services\TicketService\Ticket.API\Program.cs
+D:\ParkEase\src\Services\TicketService\Ticket.API\obj\Debug\net8.0\Ticket.API.GlobalUsings.g.cs
+D:\ParkEase\src\Services\TicketService\Ticket.API\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+D:\ParkEase\src\Services\TicketService\Ticket.API\obj\Debug\net8.0\Ticket.API.AssemblyInfo.cs
+D:\ParkEase\src\Services\TicketService\Ticket.API\obj\Debug\net8.0\Ticket.API.MvcApplicationPartsAssemblyInfo.cs
+D:\ParkEase\src\Services\TicketService\Ticket.API\appsettings.Development.json
+D:\ParkEase\src\Services\TicketService\Ticket.API\appsettings.json
+D:\ParkEase\src\Services\TicketService\Ticket.API\Ticket.API.http
+D:\ParkEase\src\Services\TicketService\Ticket.API\Properties\launchSettings.json

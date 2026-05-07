@@ -1,0 +1,1 @@
+VRID:\ParkEase\src\Services\TicketService\Ticket.Domain\Ticket.Domain.csprojòCSharp12

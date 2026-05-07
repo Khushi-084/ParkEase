@@ -1,0 +1,2 @@
+﻿D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Domain\Entities\ParkingLotEntity.cs
+D:\ParkEase\src\Services\ParkingLotService\ParkingLot.Domain\Enums\LotStatus.cs

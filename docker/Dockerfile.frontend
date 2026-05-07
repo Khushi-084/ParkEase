@@ -1,0 +1,13 @@
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json* ./
+# We need to copy into frontend directory because the package.json expects it or we can just install in /app
+RUN npm install
+COPY frontend/ .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=build /app/dist/parkease-frontend/browser /usr/share/nginx/html
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

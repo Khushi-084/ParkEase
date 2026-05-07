@@ -1,0 +1,2 @@
+﻿D:\ParkEase\src\Services\TicketService\Ticket.Domain\Entities\TicketEntity.cs
+D:\ParkEase\src\Services\TicketService\Ticket.Domain\Enums\TicketStatus.cs
