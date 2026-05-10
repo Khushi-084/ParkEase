@@ -9,13 +9,14 @@ builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("GatewayCorsPolicy", policy =>
+     options.AddPolicy("GatewayCorsPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200", "https://parkease-frontend-epu1.onrender.com")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
     });
+
 });
 
 // Add Reverse Proxy
