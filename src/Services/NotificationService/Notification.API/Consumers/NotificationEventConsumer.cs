@@ -39,7 +39,8 @@ public class NotificationEventConsumer : BackgroundService
             HostName = _config["RabbitMQ:Host"] ?? "localhost",
             Port = int.Parse(_config["RabbitMQ:Port"] ?? "5672"),
             UserName = _config["RabbitMQ:Username"] ?? "guest",
-            Password = _config["RabbitMQ:Password"] ?? "guest"
+            Password = _config["RabbitMQ:Password"] ?? "guest",
+            VirtualHost = _config["RabbitMQ:VirtualHost"] ?? "/"
         };
 
         // Retry logic for RabbitMQ connection

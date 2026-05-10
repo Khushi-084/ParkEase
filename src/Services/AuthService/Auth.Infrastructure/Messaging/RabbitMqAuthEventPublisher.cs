@@ -21,10 +21,11 @@ public class RabbitMqAuthEventPublisher(
 
         var factory = new ConnectionFactory
         {
-            HostName = config["RabbitMQ:Host"]     ?? "localhost",
-            Port     = int.Parse(config["RabbitMQ:Port"] ?? "5672"),
-            UserName = config["RabbitMQ:Username"] ?? "guest",
-            Password = config["RabbitMQ:Password"] ?? "guest"
+            HostName    = config["RabbitMQ:Host"]        ?? "localhost",
+            Port        = int.Parse(config["RabbitMQ:Port"] ?? "5672"),
+            UserName    = config["RabbitMQ:Username"]    ?? "guest",
+            Password    = config["RabbitMQ:Password"]    ?? "guest",
+            VirtualHost = config["RabbitMQ:VirtualHost"] ?? "/"
         };
 
         int retryCount = 0;
