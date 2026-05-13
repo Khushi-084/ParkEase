@@ -216,7 +216,7 @@ The API Gateway handles:
 
 # 📂 Project Structure
 
-
+```text
 ParkEase
 │
 ├── ApiGateway
@@ -242,12 +242,15 @@ ParkEase
 ├── docker-compose.yml
 │
 └── README.md
+```
 
+---
 
 # 🏗 Clean Architecture Structure
 
 Each microservice follows this architecture:
 
+```text
 Service
 │
 ├── API
@@ -272,11 +275,15 @@ Service
 │   ├── Services
 │
 └── Tests
+```
+
+---
 
 # 🔄 Complete Workflow
 
 # 🚘 Parking Slot Booking Workflow
 
+```text
 User Searches Parking Lot
           ↓
 View Available Slots
@@ -294,10 +301,13 @@ Notification Service Sends:
 - Real-Time Notification
           ↓
 Booking Confirmed
+```
 
+---
 
 # 🚗 Vehicle Entry Workflow
 
+```text
 Vehicle Arrives
         ↓
 Ticket Generated
@@ -305,10 +315,13 @@ Ticket Generated
 Slot Marked Occupied
         ↓
 Entry Time Stored
+```
 
+---
 
 # 🚪 Vehicle Exit Workflow
 
+```text
 Vehicle Exit
       ↓
 Duration Calculated
@@ -318,7 +331,331 @@ Bill Generated
 Payment Completed
       ↓
 Slot Marked Available
-
+```
 
 ---
 
+# 🏗 UML DIAGRAMS
+
+# 📌 1. High-Level System Architecture Diagram
+
+```mermaid
+flowchart LR
+
+Client[Angular Frontend]
+        ↓
+Gateway[YARP API Gateway]
+
+Gateway --> AuthService
+Gateway --> ParkingLotService
+Gateway --> SlotService
+Gateway --> BookingService
+Gateway --> TicketService
+Gateway --> PaymentService
+Gateway --> NotificationService
+
+BookingService --> RabbitMQ
+RabbitMQ --> NotificationService
+
+NotificationService --> SignalR
+NotificationService --> EmailService
+
+Services --> PostgreSQL
+Services --> Redis
+```
+
+---
+
+# 📌 2. Booking Sequence Diagram
+
+```mermaid
+sequenceDiagram
+
+User->>Frontend: Search Parking
+Frontend->>Gateway: Request Slots
+Gateway->>SlotService: Get Available Slots
+SlotService-->>Frontend: Available Slots
+
+User->>Frontend: Book Slot
+Frontend->>BookingService: Create Booking
+
+BookingService->>PaymentService: Process Payment
+PaymentService-->>BookingService: Payment Success
+
+BookingService->>RabbitMQ: Publish Booking Event
+
+RabbitMQ->>NotificationService: Consume Booking Event
+
+NotificationService->>EmailService: Send Confirmation Email
+NotificationService->>SignalR: Real-Time Notification
+
+BookingService-->>Frontend: Booking Confirmed
+```
+
+---
+
+# 📌 3. Authentication Flow Diagram
+
+```mermaid
+flowchart LR
+
+A[User Login]
+    ↓
+B[Validate Credentials]
+    ↓
+C[Generate JWT Token]
+    ↓
+D[Return JWT Token]
+    ↓
+E[Access Protected APIs]
+```
+
+---
+
+# 📌 4. Vehicle Entry & Exit Sequence Diagram
+
+```mermaid
+sequenceDiagram
+
+Vehicle->>TicketService: Vehicle Entry
+TicketService->>SlotService: Allocate Slot
+SlotService-->>TicketService: Slot Assigned
+
+TicketService->>Database: Store Entry Data
+
+Vehicle->>TicketService: Vehicle Exit
+
+TicketService->>BookingService: Calculate Duration
+BookingService-->>TicketService: Total Bill
+
+TicketService->>PaymentService: Process Payment
+PaymentService-->>TicketService: Payment Success
+
+TicketService->>SlotService: Mark Slot Available
+```
+
+---
+
+# 🗄 DATABASE MODEL (ER / DML DIAGRAM)
+
+```mermaid
+erDiagram
+
+USER ||--o{ BOOKING : creates
+PARKING_LOT ||--o{ SLOT : contains
+SLOT ||--o{ BOOKING : reserved_for
+BOOKING ||--|| PAYMENT : has
+BOOKING ||--|| TICKET : generates
+
+USER {
+    Guid Id
+    string Name
+    string Email
+    string PasswordHash
+    string Role
+}
+
+PARKING_LOT {
+    Guid Id
+    string Name
+    string Address
+    string City
+    int TotalSpots
+    decimal PricePerHour
+}
+
+SLOT {
+    Guid Id
+    string SlotNumber
+    string Type
+    bool IsAvailable
+}
+
+BOOKING {
+    Guid Id
+    datetime StartTime
+    datetime EndTime
+    decimal Amount
+    string Status
+}
+
+PAYMENT {
+    Guid Id
+    decimal Amount
+    string PaymentStatus
+    datetime PaidAt
+}
+
+TICKET {
+    Guid Id
+    datetime EntryTime
+    datetime ExitTime
+}
+```
+
+---
+
+# 🌐 API Endpoints
+
+# 🔑 Authentication APIs
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/auth/register` |
+| POST | `/api/auth/login` |
+
+---
+
+# 🅿 Parking Lot APIs
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/parkinglots` |
+| GET | `/api/parkinglots` |
+| PUT | `/api/parkinglots/{id}` |
+
+---
+
+# 🚘 Slot APIs
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/slots` |
+| GET | `/api/slots/available` |
+
+---
+
+# 📖 Booking APIs
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/bookings` |
+| PUT | `/api/bookings/extend` |
+| DELETE | `/api/bookings/cancel` |
+
+---
+
+# 🎫 Ticket APIs
+
+| Method | Endpoint |
+|---|---|
+| POST | `/api/tickets/entry` |
+| PUT | `/api/tickets/exit` |
+
+---
+
+# 📧 Notification APIs
+
+| Method | Endpoint |
+|---|---|
+| GET | `/api/notifications` |
+
+---
+
+# ⚙️ Installation & Setup
+
+# 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/Khushi-084/ParkEase.git
+```
+
+---
+
+# 2️⃣ Navigate to Project
+
+```bash
+cd ParkEase
+```
+
+---
+
+# 3️⃣ Run Docker Containers
+
+```bash
+docker-compose up -d
+```
+
+---
+
+# 4️⃣ Apply Database Migrations
+
+```bash
+dotnet ef database update
+```
+
+---
+
+# 5️⃣ Run Backend Services
+
+```bash
+dotnet run
+```
+
+---
+
+# 6️⃣ Run Angular Frontend
+
+```bash
+npm install
+ng serve
+```
+
+---
+
+# 📖 Swagger URL
+
+```text
+https://localhost:5001/swagger
+```
+
+---
+
+# 📸 Screenshots
+
+```markdown
+![Dashboard](images/dashboard.png)
+![Booking](images/booking.png)
+![Architecture](images/architecture.png)
+```
+
+---
+
+# 🚀 Future Enhancements
+
+- AI-Based Parking Prediction
+- Dynamic Pricing
+- QR-Based Vehicle Entry
+- Mobile Application
+- Google Maps Integration
+- Kubernetes Deployment
+- CI/CD Pipeline
+
+---
+
+# 👩‍💻 Author
+
+## Khushi Rathi
+
+- GitHub: https://github.com/Khushi-084
+- LinkedIn: https://www.linkedin.com/in/khushi-rathi-923a09255/
+
+---
+
+# ⭐ Project Highlights
+
+✅ Microservices Architecture  
+✅ RabbitMQ Event-Driven Communication  
+✅ SignalR Real-Time Notifications  
+✅ Redis Caching  
+✅ JWT Authentication  
+✅ Dockerized Infrastructure  
+✅ YARP API Gateway  
+✅ PostgreSQL Integration  
+✅ Angular Frontend  
+✅ Clean Architecture  
+✅ Scalable Backend Design  
+
+---
+
+# 🌟 If you like this project, give it a star on GitHub!
