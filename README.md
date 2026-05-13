@@ -337,36 +337,7 @@ Slot Marked Available
 
 # 🏗 UML DIAGRAMS
 
-# 📌 1. High-Level System Architecture Diagram
-
-```mermaid
-flowchart LR
-
-Client[Angular Frontend]
-        ↓
-Gateway[YARP API Gateway]
-
-Gateway --> AuthService
-Gateway --> ParkingLotService
-Gateway --> SlotService
-Gateway --> BookingService
-Gateway --> TicketService
-Gateway --> PaymentService
-Gateway --> NotificationService
-
-BookingService --> RabbitMQ
-RabbitMQ --> NotificationService
-
-NotificationService --> SignalR
-NotificationService --> EmailService
-
-Services --> PostgreSQL
-Services --> Redis
-```
-
----
-
-# 📌 2. Booking Sequence Diagram
+# 📌 1. Booking Sequence Diagram
 
 ```mermaid
 sequenceDiagram
@@ -394,25 +365,9 @@ BookingService-->>Frontend: Booking Confirmed
 
 ---
 
-# 📌 3. Authentication Flow Diagram
 
-```mermaid
-flowchart LR
 
-A[User Login]
-    ↓
-B[Validate Credentials]
-    ↓
-C[Generate JWT Token]
-    ↓
-D[Return JWT Token]
-    ↓
-E[Access Protected APIs]
-```
-
----
-
-# 📌 4. Vehicle Entry & Exit Sequence Diagram
+# 📌 2. Vehicle Entry & Exit Sequence Diagram
 
 ```mermaid
 sequenceDiagram
