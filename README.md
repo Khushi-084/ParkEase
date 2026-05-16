@@ -337,6 +337,10 @@ Slot Marked Available
 
 # 🏗 UML DIAGRAMS
 
+## Use Case Diagram
+
+![ParkEase Use Case Diagram](ParkEase_UseCaseDiagram.png)
+
 # 📌 1. Booking Sequence Diagram
 
 ```mermaid
