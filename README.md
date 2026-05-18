@@ -341,8 +341,10 @@ Slot Marked Available
 
 ![ParkEase Use Case Diagram](ParkEase_UseCaseDiagram.png)
 
+## HLD Diagram
 ![High Level Design](./docs/parkease_hld_diagram.png)
 
+## LLD Diagram
 ![Low Level Design](./docs/parkease_lld_diagram.png)
 
 # 📌 1. Booking Sequence Diagram
